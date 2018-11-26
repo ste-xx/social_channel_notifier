@@ -8,7 +8,7 @@ import Vuetify from 'vuetify';
 import App from './App';
 import router from './router';
 import '../node_modules/vuetify/src/stylus/app.styl';
-import 'vuetify/src/stylus/main'
+import 'vuetify/dist/vuetify.min.css' // Ensure you are using css-loader
 
 Vue.use(Vuetify, {
   theme: {
