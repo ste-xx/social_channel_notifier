@@ -1,6 +1,6 @@
 {
   "name": "social_channel_notifier",
-  "short_name": "sscnr!",
+  "short_name": "scnr!",
   "icons": [
     {
       "src": "/static/img/icons/android-chrome-192x192.png",
