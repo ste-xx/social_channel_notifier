@@ -55,8 +55,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     // needed for chai expect
     'jest/valid-expect': 0,
-
-    'semi': ["error", "always"],
+    'semi': ["error", "always"]
   },
   overrides: [{
     files: ["*.vue"],

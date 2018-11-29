@@ -13,7 +13,7 @@ exports.webpackBaseConfig = function(assetsRoot, assetsPublicPath, assetsSubDire
 
   return {
     entry: {
-      app: ['@babel/polyfill', './src/main.js']
+      app: ['./src/main.js']
     },
     output: {
       path: assetsRoot,
