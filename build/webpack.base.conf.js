@@ -1,5 +1,7 @@
 const path = require('path');
 const { VueLoaderPlugin } = require('vue-loader');
+const ServiceWorkerWebpackPlugin = require('serviceworker-webpack-plugin');
+
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const resolve = (dir) => path.join(__dirname, '..', dir);
@@ -85,6 +87,13 @@ exports.webpackBaseConfig = function(assetsRoot, assetsPublicPath, assetsSubDire
           }
         },
         {
+          test: /(manifest\.json)$/,
+          loader: 'file-loader',
+          options: {
+            name: assetsPath('manifest.json')
+          }
+        },
+        {
           test: /\.(css|postcss)$/,
           use: [extractor, 'css-loader']
         },
@@ -104,6 +113,10 @@ exports.webpackBaseConfig = function(assetsRoot, assetsPublicPath, assetsSubDire
     },
     plugins: [
       new VueLoaderPlugin(),
+      new ServiceWorkerWebpackPlugin({
+        entry: `${resolve('src')}/sw.js`,
+        // filename: 'firebase-messaging-sw.js'
+      })
     ],
   }
 };

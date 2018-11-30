@@ -9,6 +9,9 @@ module.exports = {
   env: {
     browser: true,
   },
+  globals: {
+    "firebase": true
+  },
   // https://github.com/feross/standard/blob/master/RULES.md#javascript-standard-style
   extends: ['plugin:vue/recommended', 'standard', 'plugin:jest/recommended'],
   // required to lint *.vue files

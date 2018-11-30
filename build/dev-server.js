@@ -57,7 +57,7 @@ app.use(hotMiddleware);
 const staticPath = 'static';
 app.use(staticPath, express.static('/static'));
 
-const uri = 'http://localhost:' + port;
+const uri = `http://localhost:${port}`;
 
 var _resolve;
 var readyPromise = new Promise(resolve => {

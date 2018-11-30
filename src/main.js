@@ -4,7 +4,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 console.warn('init main');
 import './firebase';
-import './serviceworker';
+// import './serviceworker';
 
 import Vue from 'vue';
 import Vuetify from 'vuetify';
