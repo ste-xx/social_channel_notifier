@@ -43,19 +43,20 @@ Object.keys(proxyTable).forEach(function (context) {
   app.use(proxyMiddleware(options.filter || context, options));
 });
 
-// handle fallback for HTML5 history API
+// // handle fallback for HTML5 history API
 app.use(require('connect-history-api-fallback')());
-
-// serve webpack bundle output
+//
+// // serve webpack bundle output
 app.use(devMiddleware);
-
-// enable hot-reload and state-preserving
-// compilation error display
+//
+// // enable hot-reload and state-preserving
+// // compilation error display
 app.use(hotMiddleware);
 
 // serve pure static assets
-const staticPath = 'static';
-app.use(staticPath, express.static('/static'));
+
+const staticPath = '/static';
+app.use(staticPath, express.static(path.join(__dirname,'..', 'static')));
 
 const uri = `http://localhost:${port}`;
 
