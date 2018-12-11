@@ -3,3 +3,12 @@ cron:
 - description: Broadcast a fetch command
   url: /publish/fetch
   schedule: every 1 hours
+
+- description: Broadcast a fetch command
+  url: /publish/fetch-1
+  schedule: every 1 hours from 00:03 to 23:03
+
+- description: Broadcast a fetch command
+  url: /publish/fetch-2
+  schedule: every 1 hours from 00:06 to 23:06
+
