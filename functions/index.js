@@ -45,8 +45,8 @@ const redditProgrammingHandler = async () => {
           body: `${title}`
         },
         webpush: {
-          notification: {click_action: permalink},
-          fcm_options: {link: permalink}
+          notification: {click_action: `https://reddit.com${permalink}`},
+          fcm_options: {link: `https://reddit.com${permalink}`}
         }
       }
     }))
