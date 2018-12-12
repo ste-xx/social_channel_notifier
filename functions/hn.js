@@ -1,5 +1,5 @@
-const {notificationTopic, pauseBetweenSend, deleteAfter} = require('./const.js');
-const {wait} = require('./util.js');
+const {notificationTopic, pauseBetweenSend} = require('./const.js');
+const {wait, cleanDb} = require('./util.js');
 
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
@@ -7,11 +7,13 @@ const axios = require('axios');
 
 const MIN_POINTS = 500;
 const DAY_IN_SECONDS = 86400;
-const dbRef = `data/HN`;
+
+const projectName = 'HN';
+const dbRef = `data/${projectName}`;
 
 const handler = async () => {
 
-  const database = admin.database().ref(dbRef);
+  const db = admin.database().ref(dbRef);
 
   const currentTimestampInSeconds = parseInt(new Date().getTime() / 1000, 10);
   const lastWeekTimestampInSeconds = currentTimestampInSeconds - DAY_IN_SECONDS * 7;
@@ -27,12 +29,12 @@ const handler = async () => {
     }
   });
 
-  const inDb = await database.once('value').then(snapshot => snapshot.val());
+  const inDb = await db.once('value').then(snapshot => snapshot.val());
   return hits.map((post) => console.log('analyze post:', post) || post)
     .filter(({objectID}) => inDb === null || typeof inDb[objectID] === 'undefined')
     .map(({title, points, objectID}) => ({
       db: {
-        objectID,
+        id: objectID,
         title,
         link: `https://news.ycombinator.com/item?id=${objectID}`,
         created: new Date().getTime()
@@ -40,7 +42,7 @@ const handler = async () => {
       notification: {
         topic: notificationTopic,
         notification: {
-          title: `HN (${points})`,
+          title: `${projectName}: (${points})`,
           body: `${title}`
         },
         webpush: {
@@ -52,36 +54,26 @@ const handler = async () => {
         }
       }
     }))
-    .map(({notification, db: {objectID, ...payload}}) => () => wait(pauseBetweenSend)
+    .map(({notification, db: {id, ...payload}}) => (idx) => (idx === 0 ? Promise.resolve() : wait(pauseBetweenSend))
       .then(() => console.log('send notification:', notification))
       .then(() => admin.messaging().send(notification))
-      .then(() => database.update({[objectID]: payload})))
-    .reduce((acc, cur) => acc.then(() => cur()), Promise.resolve(''))
+      .then(() => db.update({[id]: payload})))
+    .reduce((acc, fn, idx) => acc.then(() => fn(idx)), Promise.resolve(''))
     .then(() => console.log(`fin: ${start} - ${new Date()}`) || `${start} - ${new Date()}`);
 };
 
 
-const cleanDb = async () => {
-  const db = admin.database().ref(dbRef);
-  const inDb = await db.once('value').then(snapshot => snapshot.val());
-  return Promise.all(Object.entries(inDb)
-    .filter(([key, {created = 0}]) => created < (new Date().getTime() - deleteAfter))
-    .map(([key]) => key)
-    .map((key) => console.log(`delete: ${key}`) || key)
-    .map(key => admin.database().ref(`${dbRef}/${key}`).remove()));
-};
-
 module.exports = {
   gcFn: {
-    hackerNewsCleanDbJob: functions.runWith({timeoutSeconds: 540}).pubsub
+    [`${projectName}_DbCleanUp`]: functions.runWith({timeoutSeconds: 540}).pubsub
       .topic('clean')
-      .onPublish(async () => cleanDb()),
+      .onPublish(async () => cleanDb(dbRef)),
 
-    hackerNewsJob: functions.runWith({timeoutSeconds: 540}).pubsub
+    [`${projectName}_Job`]: functions.runWith({timeoutSeconds: 540}).pubsub
       .topic('fetch-1')
       .onPublish(async () => handler()),
 
-    hackerNewsHttp: functions.runWith({timeoutSeconds: 540}).https.onRequest(async (req, resp) =>
+    [`${projectName}_Http`]: functions.runWith({timeoutSeconds: 540}).https.onRequest(async (req, resp) =>
       handler()
         .then(r => console.log(`Successfully sent message: ${r}`) || resp.send(`Successfully sent message: ${r}`))
         .catch(e => console.warn(`Error sending message: ${e}`) || resp.send(`Error sending message: ${e}`))

@@ -4,6 +4,7 @@ admin.initializeApp();
 const {notificationTopic} = require('./const.js');
 const redditProgramming = require('./redditProgramming.js');
 const hn = require('./hn.js');
+const ghTrendingJs = require('./ghTrendingJs.js');
 
 const registerToTopic = functions.https.onRequest(async (req, resp) => {
   try {
@@ -18,5 +19,6 @@ const registerToTopic = functions.https.onRequest(async (req, resp) => {
 Object.assign(exports, {
   registerToTopic,
   ...redditProgramming.gcFn,
-  ...hn.gcFn
+  ...hn.gcFn,
+  ...ghTrendingJs.gcFn
 });
