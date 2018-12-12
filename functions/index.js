@@ -2,6 +2,8 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();
 const {notificationTopic} = require('./const.js');
+const redditProgramming = require('./redditProgramming.js');
+const hn = require('./hn.js');
 
 const registerToTopic = functions.https.onRequest(async (req, resp) => {
   try {
@@ -15,6 +17,6 @@ const registerToTopic = functions.https.onRequest(async (req, resp) => {
 
 Object.assign(exports, {
   registerToTopic,
-  ...require('./redditProgramming.js'),
-  ...require('./hackerNews.js')
+  ...redditProgramming.gcFn,
+  ...hn.gcFn
 });

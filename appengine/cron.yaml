@@ -12,3 +12,6 @@ cron:
   url: /publish/fetch-2
   schedule: every 1 hours from 00:06 to 23:06
 
+- description: clean
+  url: /publish/clean
+  schedule: every 24 hours
