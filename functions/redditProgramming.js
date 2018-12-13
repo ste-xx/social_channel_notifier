@@ -1,8 +1,8 @@
-const {notificationTopic, pauseBetweenSend} = require('./const.js');
-const {wait, cleanDb} = require('./util.js');
+const {notificationTopic} = require('./const.js');
+const {cleanDb, writeDbAndSend} = require('./util.js');
 
 const functions = require('firebase-functions');
-const admin = require('firebase-admin');
+
 const axios = require('axios');
 
 const projectName = 'r_programming';
@@ -12,18 +12,14 @@ const MIN_SCORE = 500;
 const redditTopic = 'r/programming';
 
 const handler = async () => {
-  const db = admin.database().ref(dbRef);
-
   console.log(`Fetch ${projectName}`);
   const start = new Date();
   const {data: {children: posts}} = await axios.get(`https://www.reddit.com/${redditTopic}/top/.json`, {params: {t: 'week'}})
     .then(({data}) => data);
-  const inDb = await db.once('value').then(snapshot => snapshot.val());
 
-  return posts.map(({data}) => data)
+  const relevants = posts.map(({data}) => data)
     .map(post => console.log('analyze post:', post) || post)
     .filter(({score}) => score >= MIN_SCORE)
-    .filter(({id}) => inDb === null || typeof inDb[id] === 'undefined')
     .map(({id, title, score, permalink}) => ({
       db: {
         id,
@@ -45,13 +41,9 @@ const handler = async () => {
           fcm_options: {link: `https://reddit.com${permalink}`}
         }
       }
-    }))
-    .map(({notification, db: {id, ...payload}}) => (idx) => (idx === 0 ? Promise.resolve() : wait(pauseBetweenSend))
-      .then(() => console.log('send notification:', notification))
-      .then(() => admin.messaging().send(notification))
-      .then(() => db.update({[id]: payload})))
-    .reduce((acc, fn, idx) => acc.then(() => fn(idx)), Promise.resolve(''))
-    .then(() => console.log(`fin: ${start} - ${new Date()}`) || `${start} - ${new Date()}`);
+    }));
+
+  return writeDbAndSend(relevants, dbRef).then(() => console.log(`fin: ${start} - ${new Date()}`) || `${start} - ${new Date()}`);
 };
 
 module.exports = {

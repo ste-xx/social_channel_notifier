@@ -1,30 +1,29 @@
-const {notificationTopic, pauseBetweenSend} = require('./const.js');
-const {wait, cleanDb} = require('./util.js');
+const {notificationTopic} = require('./const.js');
+const {cleanDb, writeDbAndSend} = require('./util.js');
 
 const functions = require('firebase-functions');
-const admin = require('firebase-admin');
+
 const axios = require('axios');
 
 const projectName = 'gh_trending_js';
 const dbRef = `data/${projectName}`;
 
+//todo update each entry with new date
 const handler = async () => {
 
-  const db = admin.database().ref(dbRef);
   const start = new Date();
-  const {data:projects} = await axios.get(`https://github-trending-api.now.sh/repositories`, {
+  const {data: projects} = await axios.get(`https://github-trending-api.now.sh/repositories`, {
     params: {
       language: 'javascript',
       since: 'weekly'
     }
   });
-  const inDb = await db.once('value').then(snapshot => snapshot.val());
-  return  projects
+
+  const relevants = projects
     .map(project => console.log('analyze project:', project) || project)
-    .filter(({name}) => inDb === null || typeof inDb[name] === 'undefined')
     .map(({name, currentPeriodStars, description, url}) => ({
       db: {
-        id:name,
+        id: name.replace('.', ''),
         url,
         created: new Date().getTime()
       },
@@ -42,13 +41,9 @@ const handler = async () => {
           fcm_options: {link: url}
         }
       }
-    }))
-    .map(({notification, db: {id, ...payload}}) => (idx) => (idx === 0 ? Promise.resolve() : wait(pauseBetweenSend))
-      .then(() => console.log('send notification:', notification))
-      .then(() => admin.messaging().send(notification))
-      .then(() => db.update({[id]: payload})))
-    .reduce((acc, fn, idx) => acc.then(() => fn(idx)), Promise.resolve(''))
-    .then(() => console.log(`fin: ${start} - ${new Date()}`) || `${start} - ${new Date()}`);
+    }));
+
+  return writeDbAndSend(relevants, dbRef).then(() => console.log(`fin: ${start} - ${new Date()}`) || `${start} - ${new Date()}`);
 };
 
 
