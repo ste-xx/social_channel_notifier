@@ -5,7 +5,7 @@ const functions = require('firebase-functions');
 
 const axios = require('axios');
 
-const projectName = 'gh_trending_js';
+const projectName = 'gh_trending_all';
 const dbRef = `data/${projectName}`;
 
 const handler = async () => {
@@ -13,13 +13,14 @@ const handler = async () => {
   const start = new Date();
   const {data: projects} = await axios.get(`https://github-trending-api.now.sh/repositories`, {
     params: {
-      language: 'javascript',
+      language: '',
       since: 'weekly'
     }
   });
 
   const relevants = projects
     .map(project => console.log('analyze project:', project) || project)
+    .filter(({language}) => language !== 'JavaScript')
     .map(({name, currentPeriodStars, description, url}) => ({
       db: {
         id: name.replace('.', ''),
@@ -53,7 +54,7 @@ module.exports = {
       .onPublish(async () => cleanDb(dbRef)),
 
     [`${projectName}_Job`]: functions.runWith({timeoutSeconds: 540}).pubsub
-      .topic('fetch-2')
+      .topic('fetch-3')
       .onPublish(async () => handler()),
 
     [`${projectName}_Http`]: functions.runWith({timeoutSeconds: 540}).https.onRequest(async (req, resp) =>
