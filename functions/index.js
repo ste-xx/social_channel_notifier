@@ -6,6 +6,7 @@ const redditProgramming = require('./redditProgramming.js');
 const hn = require('./hn.js');
 const ghTrendingJs = require('./ghTrendingJs.js');
 const ghTrendingAll = require('./ghTrendingAll.js');
+const phDaily = require('./phdaily.js');
 
 const registerToTopic = functions.https.onRequest(async (req, resp) => {
   try {
@@ -22,5 +23,6 @@ Object.assign(exports, {
   ...redditProgramming.gcFn,
   ...hn.gcFn,
   ...ghTrendingJs.gcFn,
-  ...ghTrendingAll.gcFn
+  ...ghTrendingAll.gcFn,
+  ...phDaily.gcFn
 });
