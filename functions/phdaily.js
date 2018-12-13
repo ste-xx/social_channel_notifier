@@ -62,10 +62,6 @@ const handler = async () => {
   return writeDbAndSend(relevants, dbRef).then(() => console.log(`fin: ${start} - ${new Date()}`) || `${start} - ${new Date()}`);
 };
 
-const reg = (req, resp) => {
-  console.info(req);
-};
-
 module.exports = {
   gcFn: {
     [`${projectName}_DbCleanUp`]: functions.runWith({timeoutSeconds: 540}).pubsub
