@@ -17,7 +17,7 @@ cron:
   schedule: every 1 hours from 00:09 to 23:09
 
 - description: Broadcast a fetch command
-  url: /publish/fetch-3
+  url: /publish/fetch-4
   schedule: every 1 hours from 00:12 to 23:12
 
 - description: clean
