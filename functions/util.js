@@ -1,7 +1,9 @@
 const admin = require('firebase-admin');
 const {deleteAfter, pauseBetweenSend} = require('./const.js');
-
+const telegramDbSecret = `secret/telegram`;
 const waitFn = (ms) => new Promise(resolve => setTimeout(() => resolve(''), ms));
+const axios = require('axios');
+const channel = '@scnrr';
 
 module.exports = {
   wait: waitFn,
@@ -38,13 +40,20 @@ module.exports = {
       console.log(`write id: ${id} with payload`, payload) ||
       db.update({[id]: payload}));
 
-    const messagesPromise = relevants
-      .filter(({db: {id}}) => oldEntries === null || typeof oldEntries[id] === 'undefined')
-      .map(({notification}) => (idx) => (idx === 0 ? Promise.resolve() : waitFn(pauseBetweenSend))
-        .then(() => console.log('send notification:', notification))
-        .then(() => admin.messaging().send(notification)))
-      .reduce((acc, fn, idx) => acc.then(() => fn(idx)), Promise.resolve(''));
+    const apiToken = await admin.database().ref(telegramDbSecret).once('value').then(snapshot => snapshot.val());
+    const telegramPromises = relevants.map(
+      ({
+         notification: {
+           notification: {title, body},
+           webpush: {fcm_options: {link}}
+         }
+       }) =>
+        axios.post(`https://api.telegram.org/bot${apiToken}/sendMessage`, {
+          chat_id: channel,
+          text: `[${title}: ${body}](${link})`,
+          parse_mode: 'Markdown'
+        }));
 
-    return Promise.all([...dbPromises, messagesPromise]);
+    return Promise.all([...dbPromises, ...telegramPromises]);
   }
 };
