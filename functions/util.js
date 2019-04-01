@@ -1,5 +1,5 @@
 const admin = require('firebase-admin');
-const {deleteAfter, pauseBetweenSend} = require('./const.js');
+const {deleteAfter} = require('./const.js');
 const telegramDbSecret = `secret/telegram`;
 const waitFn = (ms) => new Promise(resolve => setTimeout(() => resolve(''), ms));
 const axios = require('axios');
@@ -41,7 +41,9 @@ module.exports = {
       db.update({[id]: payload}));
 
     const apiToken = await admin.database().ref(telegramDbSecret).once('value').then(snapshot => snapshot.val());
-    const telegramPromises = relevants.map(
+    const telegramPromises = relevants
+      .filter(({db: {id}}) => oldEntries === null || typeof oldEntries[id] === 'undefined')
+      .map(
       ({
          notification: {
            notification: {title, body},
