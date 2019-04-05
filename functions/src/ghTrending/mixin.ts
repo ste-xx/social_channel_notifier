@@ -53,7 +53,8 @@ class GhTrendingMixin implements CreateHandlerMixin, WriteToDbMixin, SendViaTele
         }
       }));
 
-    await Promise.all([this.writeToDb(payload), this.sendViaTelegram(payload, await this.getEntriesFromDb())]);
+    const beforeUpdate = await this.getEntriesFromDb();
+    await Promise.all([this.writeToDb(payload), this.sendViaTelegram(payload, beforeUpdate)]);
     const end = `fin: ${start} - ${new Date()}`;
     return console.log(end) || end;
   }
