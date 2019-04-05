@@ -1,9 +1,7 @@
 import {notificationTopic} from '../const';
 
-import axios, {AxiosResponse} from 'axios/index';
+import axios from 'axios/index';
 import CreateHandlerMixin from '../createHandlerMixin';
-import SendViaTelegramMixin from "../sendViaTelegramMixin";
-import WriteToDbMixin from "../writeToDbMixin";
 import Payload from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
@@ -12,7 +10,7 @@ import * as admin from "firebase-admin";
 const dbSecret = `secret/ph`;
 const MIN_VOTES = 300;
 
-class PhDaily implements CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixin {
+class PhDaily implements CreateHandlerMixin {
 
   getProjectName(): string {
     return 'phDaily';
@@ -23,13 +21,10 @@ class PhDaily implements CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixi
   }
 
   getDbRef: () => string;
-  cleanDb: () => Promise<any>;
   createHandlers: () => any;
-  sendViaTelegram: (payload: Payload[], beforeUpdate) => Promise<AxiosResponse<any>[]>;
-  writeToDb: (payload: Payload[]) => Promise<void[]>;
   getEntriesFromDb: () => Promise<string>;
 
-  async do(): Promise<string> {
+  async do(): Promise<Payload[]> {
     const start = new Date();
     const {client_id, client_secret} = await admin.database().ref(dbSecret).once('value').then(snapshot => snapshot.val());
     const {data: {access_token}} = await axios(`https://api.producthunt.com/v1/oauth/token`, {
@@ -52,7 +47,7 @@ class PhDaily implements CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixi
       }
     });
 
-    const payload: Payload[] = posts.map((post) => console.log('analyze post:', post) || post)
+    return posts.map((post) => console.log('analyze post:', post) || post)
       .filter(({votes_count}) => votes_count > MIN_VOTES)
       .map(({id, name, tagline, votes_count, discussion_url}): Payload => ({
         db: {
@@ -69,13 +64,8 @@ class PhDaily implements CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixi
           }
         }
       }));
-
-    const beforeUpdate = await this.getEntriesFromDb();
-    await Promise.all([this.writeToDb(payload), this.sendViaTelegram(payload, beforeUpdate)]);
-    const end = `fin: ${start} - ${new Date()}`;
-    return console.log(end) || end;
   }
 }
 
-applyMixins(PhDaily, [BaseMixin, CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixin]);
+applyMixins(PhDaily, [BaseMixin, CreateHandlerMixin]);
 export default PhDaily;

@@ -1,13 +1,10 @@
-import {AxiosResponse} from 'axios/index';
 import CreateHandlerMixin from '../createHandlerMixin';
 import applyMixins from "../mixin";
-import SendViaTelegramMixin from "../sendViaTelegramMixin";
-import WriteToDbMixin from "../writeToDbMixin";
 import Payload from "../payload";
 import GhTrendingMixin, {GhTrendingParams} from "./mixin";
 import BaseMixin from "../baseMixin";
 
-class GhTrendingAll implements GhTrendingMixin, CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixin {
+class GhTrendingAll implements GhTrendingMixin, CreateHandlerMixin{
   getGhTrendingParams(): GhTrendingParams {
     return {
       language: ''
@@ -23,13 +20,10 @@ class GhTrendingAll implements GhTrendingMixin, CreateHandlerMixin, WriteToDbMix
   }
 
   getDbRef: () => string;
-  cleanDb: () => Promise<any>;
   createHandlers: () => any;
-  sendViaTelegram: (payload: Payload[], beforeUpdate) => Promise<AxiosResponse<any>[]>;
-  writeToDb: (payload: Payload[]) => Promise<void[]>;
   getEntriesFromDb: () => Promise<string>;
-  do: () => Promise<string>;
+  do: () => Promise<Payload[]>;
 }
 
-applyMixins(GhTrendingAll, [BaseMixin, CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixin, GhTrendingMixin]);
+applyMixins(GhTrendingAll, [BaseMixin, CreateHandlerMixin, GhTrendingMixin]);
 export default GhTrendingAll;

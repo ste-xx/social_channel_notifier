@@ -1,9 +1,7 @@
 import {notificationTopic} from '../const';
 
-import axios, {AxiosResponse} from 'axios/index';
+import axios from 'axios/index';
 import CreateHandlerMixin from '../createHandlerMixin';
-import SendViaTelegramMixin from "../sendViaTelegramMixin";
-import WriteToDbMixin from "../writeToDbMixin";
 import Payload from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
@@ -12,7 +10,7 @@ const MIN_SCORE = 500;
 const redditTopic = 'r/programming';
 
 
-class RProgramming implements CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixin {
+class RProgramming implements CreateHandlerMixin {
 
   getProjectName(): string {
     return 'r_programming';
@@ -23,18 +21,15 @@ class RProgramming implements CreateHandlerMixin, WriteToDbMixin, SendViaTelegra
   }
 
   getDbRef: () => string;
-  cleanDb: () => Promise<any>;
   createHandlers: () => any;
-  sendViaTelegram: (payload: Payload[], beforeUpdate) => Promise<AxiosResponse<any>[]>;
-  writeToDb: (payload: Payload[]) => Promise<void[]>;
   getEntriesFromDb: () => Promise<string>;
 
-  async do(): Promise<string> {
+  async do(): Promise<Payload[]> {
     const start = new Date();
     const {data: {children: posts}} = await axios.get(`https://www.reddit.com/${redditTopic}/top/.json`, {params: {t: 'week'}})
       .then(({data}) => data);
 
-    const payload: Payload[] = posts.map(({data}) => data)
+    return posts.map(({data}) => data)
       .map(post => console.log('analyze post:', post) || post)
       .filter(({score}) => score >= MIN_SCORE)
       .map(({id, title, score, permalink}): Payload => ({
@@ -52,13 +47,8 @@ class RProgramming implements CreateHandlerMixin, WriteToDbMixin, SendViaTelegra
           }
         }
       }));
-
-    const beforeUpdate = await this.getEntriesFromDb();
-    await Promise.all([this.writeToDb(payload), this.sendViaTelegram(payload, beforeUpdate)]);
-    const end = `fin: ${start} - ${new Date()}`;
-    return console.log(end) || end;
   }
 }
 
-applyMixins(RProgramming, [BaseMixin, CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixin]);
+applyMixins(RProgramming, [BaseMixin, CreateHandlerMixin]);
 export default RProgramming;

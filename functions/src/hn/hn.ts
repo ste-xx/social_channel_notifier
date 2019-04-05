@@ -1,9 +1,7 @@
 import {notificationTopic} from '../const';
 
-import axios, {AxiosResponse} from 'axios/index';
+import axios from 'axios/index';
 import CreateHandlerMixin from '../createHandlerMixin';
-import SendViaTelegramMixin from "../sendViaTelegramMixin";
-import WriteToDbMixin from "../writeToDbMixin";
 import Payload from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
@@ -11,7 +9,7 @@ import BaseMixin from "../baseMixin";
 const MIN_POINTS = 500;
 const DAY_IN_SECONDS = 86400;
 
-class HN implements CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixin {
+class HN implements CreateHandlerMixin {
 
   getProjectName(): string {
     return 'HN';
@@ -22,13 +20,10 @@ class HN implements CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixin {
   }
 
   getDbRef: () => string;
-  cleanDb: () => Promise<any>;
   createHandlers: () => any;
-  sendViaTelegram: (payload: Payload[], beforeUpdate) => Promise<AxiosResponse<any>[]>;
-  writeToDb: (payload: Payload[]) => Promise<void[]>;
   getEntriesFromDb: () => Promise<string>;
 
-  async do(): Promise<string> {
+  async do(): Promise<Payload[]> {
     const currentTimestampInSeconds = parseInt(`${new Date().getTime() / 1000}`, 10);
     const lastWeekTimestampInSeconds = currentTimestampInSeconds - DAY_IN_SECONDS * 7;
     console.log(`timestamp in seconds: ${lastWeekTimestampInSeconds}`);
@@ -43,7 +38,7 @@ class HN implements CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixin {
       }
     });
 
-    const payload: Payload[] = hits.map((post) => console.log('analyze post:', post) || post)
+    return hits.map((post) => console.log('analyze post:', post) || post)
       .map(({title, points, objectID}): Payload => ({
         db: {
           id: objectID,
@@ -59,14 +54,8 @@ class HN implements CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixin {
           }
         }
       }));
-
-
-    const beforeUpdate = await this.getEntriesFromDb();
-    await Promise.all([this.writeToDb(payload), this.sendViaTelegram(payload, beforeUpdate)]);
-    const end = `fin: ${start} - ${new Date()}`;
-    return console.log(end) || end;
   }
 }
 
-applyMixins(HN, [BaseMixin, CreateHandlerMixin, WriteToDbMixin, SendViaTelegramMixin]);
+applyMixins(HN, [BaseMixin, CreateHandlerMixin]);
 export default HN;
