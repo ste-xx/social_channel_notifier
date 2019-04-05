@@ -1,5 +1,6 @@
 {
   "projects": {
-    "prod": "social-channel-notifier"
+    "prod": "social-channel-notifier",
+    "default": "social-channel-notifier"
   }
 }
