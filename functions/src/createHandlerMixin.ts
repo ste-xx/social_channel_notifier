@@ -15,6 +15,7 @@ export default class CreateHandlerMixin implements BaseMixin {
   getEntriesFromDb: () => Promise<string>;
 
   createHandlers(): any {
+    const escapeId = (id) => id.replace(/[#.$\/\[\]]/g,'');
 
     const cleanDb = async (): Promise<any> => {
       const db = admin.database().ref(this.getDbRef());
@@ -29,9 +30,13 @@ export default class CreateHandlerMixin implements BaseMixin {
 
     const writeToDb = async (payload: Payload[]): Promise<void[]> => {
       const db = admin.database().ref(this.getDbRef());
-      return Promise.all(payload.map(({db: {id, ...payload}}) =>
-        console.log(`write id: ${id} with payload`, payload) ||
-        db.update({[id]: payload})));
+      return Promise.all(payload.map(({db: {id, ...payload}}) => {
+        const transformedId = escapeId(id);
+        console.log(`write id: ${transformedId} with payload`, payload);
+        return db.update({[transformedId]: payload}).catch((err) => {
+          return console.error(`some went wrong: id: ${transformedId} payload: ${JSON.stringify(payload)}`);
+        });
+      }));
     };
 
 
@@ -40,7 +45,7 @@ export default class CreateHandlerMixin implements BaseMixin {
       const channel = '@scnrr';
       const apiToken = await admin.database().ref(telegramDbSecret).once('value').then(snapshot => snapshot.val());
       return Promise.all(payload
-        .filter(({db: {id}}) => beforeUpdate === null || typeof beforeUpdate[id] === 'undefined')
+        .filter(({db: {id}}) => beforeUpdate === null || typeof beforeUpdate[escapeId(id)] === 'undefined')
         .map(({notification: {notification: {title, body, link}}}) =>
           axios.post(`https://api.telegram.org/bot${apiToken}/sendMessage`, {
             chat_id: channel,
