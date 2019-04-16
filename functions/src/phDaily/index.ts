@@ -1,5 +1,3 @@
-import {notificationTopic} from '../const';
-
 import axios from 'axios/index';
 import CreateHandlerMixin from '../createHandlerMixin';
 import Payload from "../payload";
@@ -25,7 +23,7 @@ class PhDaily implements CreateHandlerMixin {
   getEntriesFromDb: () => Promise<string>;
 
   async do(): Promise<Payload[]> {
-    const start = new Date();
+
     const {client_id, client_secret} = await admin.database().ref(dbSecret).once('value').then(snapshot => snapshot.val());
     const {data: {access_token}} = await axios(`https://api.producthunt.com/v1/oauth/token`, {
       method: 'post',
@@ -56,12 +54,9 @@ class PhDaily implements CreateHandlerMixin {
           created: new Date().getTime()
         },
         notification: {
-          topic: notificationTopic,
-          notification: {
-            title: `${this.getProjectName()}: ${name} (${votes_count})`,
-            body: `${tagline}`,
-            link: discussion_url
-          }
+          title: `${this.getProjectName()}: ${name} (${votes_count})`,
+          body: `${tagline}`,
+          link: discussion_url
         }
       }));
   }

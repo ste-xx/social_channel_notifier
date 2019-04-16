@@ -1,5 +1,3 @@
-import {notificationTopic} from '../const';
-
 import axios from 'axios/index';
 import CreateHandlerMixin from '../createHandlerMixin';
 import Payload from "../payload";
@@ -39,12 +37,9 @@ class RProgramming implements CreateHandlerMixin {
           created: new Date().getTime()
         },
         notification: {
-          topic: notificationTopic,
-          notification: {
-            title: `${this.getProjectName()}: (${score})`,
-            body: `${title}`,
-            link: `https://reddit.com${permalink}`
-          }
+          title: `${this.getProjectName()}: (${score})`,
+          body: `${title}`,
+          link: `https://reddit.com${permalink}`
         }
       }));
   }

@@ -1,6 +1,5 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import {deleteAfter} from "./const";
 import BaseMixin from "./baseMixin";
 import Payload from "./payload";
 import axios, {AxiosResponse} from "axios";
@@ -18,6 +17,8 @@ export default class CreateHandlerMixin implements BaseMixin {
     const escapeId = (id) => id.replace(/[#.$\/\[\]]/g,'');
 
     const cleanDb = async (): Promise<any> => {
+      const dayInMs = 86400000;
+      const deleteAfter = dayInMs * 10;
       const db = admin.database().ref(this.getDbRef());
       const inDb = await db.once('value').then(snapshot => snapshot.val());
       return Promise.all(Object.entries(inDb)
@@ -34,7 +35,7 @@ export default class CreateHandlerMixin implements BaseMixin {
         const transformedId = escapeId(id);
         console.log(`write id: ${transformedId} with payload`, payload);
         return db.update({[transformedId]: payload}).catch((err) => {
-          return console.error(`some went wrong: id: ${transformedId} payload: ${JSON.stringify(payload)}`);
+          return console.error(`some went wrong: id: ${transformedId} payload: ${JSON.stringify(payload)} err: ${err}`);
         });
       }));
     };
@@ -46,7 +47,7 @@ export default class CreateHandlerMixin implements BaseMixin {
       const apiToken = await admin.database().ref(telegramDbSecret).once('value').then(snapshot => snapshot.val());
       return Promise.all(payload
         .filter(({db: {id}}) => beforeUpdate === null || typeof beforeUpdate[escapeId(id)] === 'undefined')
-        .map(({notification: {notification: {title, body, link}}}) =>
+        .map(({notification: {title, body, link}}) =>
           axios.post(`https://api.telegram.org/bot${apiToken}/sendMessage`, {
             chat_id: channel,
             text: `[${title}: ${body}](${link})`,

@@ -1,5 +1,3 @@
-import {notificationTopic} from '../const';
-
 import axios from 'axios/index';
 import CreateHandlerMixin from '../createHandlerMixin';
 import Payload from "../payload";
@@ -28,7 +26,6 @@ class HN implements CreateHandlerMixin {
     const lastWeekTimestampInSeconds = currentTimestampInSeconds - DAY_IN_SECONDS * 7;
     console.log(`timestamp in seconds: ${lastWeekTimestampInSeconds}`);
 
-    const start = new Date();
     const {data: {hits}} = await axios.get(`https://hn.algolia.com/api/v1/search`, {
       params: {
         query: '',
@@ -46,12 +43,9 @@ class HN implements CreateHandlerMixin {
           created: new Date().getTime()
         },
         notification: {
-          topic: notificationTopic,
-          notification: {
-            title: `${this.getProjectName()}: (${points})`,
-            body: `${title}`,
-            link: `https://news.ycombinator.com/item?id=${objectID}`
-          }
+          title: `${this.getProjectName()}: (${points})`,
+          body: `${title}`,
+          link: `https://news.ycombinator.com/item?id=${objectID}`
         }
       }));
   }

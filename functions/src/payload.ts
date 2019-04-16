@@ -5,11 +5,8 @@ export default interface Payload {
     created: number
   },
   notification: {
-    topic: string,
-    notification: {
-      title: string,
-      body: string,
-      link: string
-    }
+    title: string,
+    body: string,
+    link: string
   }
 }
