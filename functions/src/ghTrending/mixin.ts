@@ -4,7 +4,7 @@ import axios from 'axios/index';
 import CreateHandlerMixin, {onCronTopicType} from '../createHandlerMixin';
 import Payload from "../payload";
 
-export interface GhTrendingParams {
+export interface GhTrendingConfigs {
   language: string,
 }
 
@@ -13,7 +13,7 @@ class GhTrendingMixin implements CreateHandlerMixin {
   //to implement
   getProjectName: () => string;
   getDbRef: () => string;
-  getGhTrendingParams: () => GhTrendingParams;
+  getGhTrendingParams: () => GhTrendingConfigs;
   onCronTopic: () => onCronTopicType;
   //to implement end
   createHandlers: () => any;

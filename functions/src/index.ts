@@ -8,6 +8,8 @@ import Hn from './hn/hn';
 import GhTrendingJs from './ghTrending/js';
 import GhTrendingTs from './ghTrending/ts';
 import GhTrendingAll from './ghTrending/all';
+import GhTrendingAggregate from './ghTrending/ghTrending';
+
 import PhDaily from './phDaily/phDaily';
 
 const registerToTopic = functions.https.onRequest(async (req, resp) => {
@@ -28,4 +30,5 @@ Object.assign(exports, {
     ...new GhTrendingJs().createHandlers(),
     ...new GhTrendingAll().createHandlers(),
     ...new PhDaily().createHandlers(),
+    ...new GhTrendingAggregate().createHandlers()
 });

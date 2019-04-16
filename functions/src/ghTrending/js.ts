@@ -1,11 +1,11 @@
 import CreateHandlerMixin from '../createHandlerMixin';
 import applyMixins from "../mixin";
 import Payload from "../payload";
-import GhTrendingMixin, {GhTrendingParams} from "./mixin";
+import GhTrendingMixin, {GhTrendingConfigs} from "./mixin";
 import BaseMixin from "../baseMixin";
 
 class GhTrendingJs implements GhTrendingMixin, CreateHandlerMixin {
-  getGhTrendingParams(): GhTrendingParams {
+  getGhTrendingParams(): GhTrendingConfigs {
     return {
       language: 'javascript'
     };
