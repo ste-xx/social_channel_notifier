@@ -45,7 +45,10 @@ class PhDaily implements CreateHandlerMixin {
       }
     });
 
-    return posts.map((post) => console.log('analyze post:', post) || post)
+    return posts.map((post) => {
+      console.log('analyze post:', post);
+      return post;
+    })
       .filter(({votes_count}) => votes_count > MIN_VOTES)
       .map(({id, name, tagline, votes_count, discussion_url}): Payload => ({
         db: {

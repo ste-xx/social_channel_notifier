@@ -35,7 +35,10 @@ class HN implements CreateHandlerMixin {
       }
     });
 
-    return hits.map((post) => console.log('analyze post:', post) || post)
+    return hits.map((post) => {
+      console.log('analyze post:', post);
+      return post;
+    })
       .map(({title, points, objectID}): Payload => ({
         db: {
           id: objectID,

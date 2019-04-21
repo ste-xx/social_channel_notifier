@@ -25,7 +25,10 @@ export default class CreateHandlerMixin implements BaseMixin {
       // @ts-ignore
         .filter(([, {created = 0}]) => created < (new Date().getTime() - deleteAfter))
         .map(([key]) => key)
-        .map((key) => console.log(`delete: ${key}`) || key)
+        .map((key) => {
+          console.log(`delete: ${key}`);
+          return key;
+        })
         .map(key => admin.database().ref(`${this.getDbRef()}/${key}`).remove()));
     };
 
@@ -60,7 +63,8 @@ export default class CreateHandlerMixin implements BaseMixin {
       const beforeUpdate = await this.getEntriesFromDb();
       await Promise.all([writeToDb(payload), sendViaTelegram(payload, beforeUpdate)]);
       const end = `fin: ${start} - ${new Date()}`;
-      return console.log(end) || end;
+      console.log(end);
+      return end;
     };
 
     return {
@@ -83,7 +87,8 @@ export default class CreateHandlerMixin implements BaseMixin {
             console.log(respMsg);
             return resp.send(respMsg);
           } catch (e) {
-            console.warn(`Error sending message: ${e}`) || resp.send(`Error sending message: ${e}`);
+            console.warn(`Error sending message: ${e}`);
+            resp.send(`Error sending message: ${e}`);
             return null;
           }
         }

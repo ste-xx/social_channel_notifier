@@ -51,7 +51,10 @@ class GhTrending implements CreateHandlerMixin {
     const ghTrendingProjects: GhTrendingProject[] = results.reduce((acc, cur) => [...acc, ...cur.data], []);
 
     return ghTrendingProjects
-      .map(project => console.log('analyze project:', project) || project)
+      .map(project => {
+        console.log('analyze project:', project);
+        return project;
+      })
       .map(({name, currentPeriodStars, description, url}) => ({
         db: {
           id: name.replace('.', ''),

@@ -28,7 +28,10 @@ class RProgramming implements CreateHandlerMixin {
       .then(({data}) => data);
 
     return posts.map(({data}) => data)
-      .map(post => console.log('analyze post:', post) || post)
+      .map(post => {
+        console.log('analyze post:', post);
+        return post;
+      })
       .filter(({score}) => score >= MIN_SCORE)
       .map(({id, title, score, permalink}): Payload => ({
         db: {
