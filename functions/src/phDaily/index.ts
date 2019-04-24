@@ -52,7 +52,7 @@ class PhDaily implements CreateHandlerMixin {
       .filter(({votes_count}) => votes_count > MIN_VOTES)
       .map(({id, name, tagline, votes_count, discussion_url}): Payload => ({
         db: {
-          id,
+          id: `${id}`,
           url: discussion_url,
           created: new Date().getTime()
         },
