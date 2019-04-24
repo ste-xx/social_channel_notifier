@@ -4,7 +4,7 @@ import Payload from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
 
-export type projectName = 'r_programming';
+export type projectName = 'reddit';
 
 const MIN_SCORE = 500;
 const redditTopic = 'r/programming';
@@ -17,11 +17,7 @@ class RProgramming implements CreateHandlerMixin {
   }
 
   getProjectName(): projectName {
-    return 'r_programming';
-  }
-
-  onCronTopic(): "fetch-1" {
-    return "fetch-1";
+    return 'reddit';
   }
 
   getDbRef: () => string;

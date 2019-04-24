@@ -41,10 +41,6 @@ class GhMerge implements CreateHandlerMixin {
     return 'ghMerge';
   }
 
-  onCronTopic(): "fetch-1" {
-    return "fetch-1";
-  }
-
   getDbRef: () => string;
   createHandlers: () => any;
   getEntriesFromDb: () => Promise<string>;

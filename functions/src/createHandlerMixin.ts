@@ -4,11 +4,8 @@ import BaseMixin, {projectName} from "./baseMixin";
 import Payload from "./payload";
 import axios, {AxiosResponse} from "axios";
 
-export type onCronTopicType = 'fetch-1' | 'fetch-2' | 'fetch-3';
-
 export default class CreateHandlerMixin implements BaseMixin {
   do: () => Promise<Payload[]>;
-  onCronTopic: () => onCronTopicType;
   getDbRef: () => any;
   getProjectName: () => projectName;
   getEntriesFromDb: () => Promise<string>;
@@ -69,12 +66,12 @@ export default class CreateHandlerMixin implements BaseMixin {
     };
 
     return {
-      [`${this.getProjectName()}_DbCleanUp`]: functions.runWith({timeoutSeconds: 540}).pubsub
-        .topic('clean')
-        .onPublish(async () => cleanDb()),
+      // [`${this.getProjectName()}_DbCleanUp`]: functions.runWith({timeoutSeconds: 540}).pubsub
+      //   .topic('clean')
+      //   .onPublish(async () => cleanDb()),
 
       [`${this.getProjectName()}_Job`]: functions.runWith({timeoutSeconds: 540}).pubsub
-        .topic(this.onCronTopic())
+        .topic(this.getProjectName())
         .onPublish(async () => {
           const payload = await this.do();
           return processResults(payload, 0);

@@ -4,7 +4,7 @@ import Payload from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
 
-export type projectName = 'HN';
+export type projectName = 'hackerNews';
 
 const MIN_POINTS = 500;
 const DAY_IN_SECONDS = 86400;
@@ -15,11 +15,7 @@ class HN implements CreateHandlerMixin {
   }
 
   getProjectName(): projectName {
-    return 'HN';
-  }
-
-  onCronTopic(): "fetch-1" {
-    return "fetch-1";
+    return 'hackerNews';
   }
 
   getDbRef: () => string;

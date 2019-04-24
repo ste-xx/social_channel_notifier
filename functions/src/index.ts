@@ -2,11 +2,11 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
 admin.initializeApp();
-import RedditProgramming from './reddit';
-import Hn from './hn';
+import Reddit from './reddit';
+import Hn from './hackerNews';
 import GhTrending from './ghTrending';
-import PhDaily from './phDaily';
-import GhMerge from './ghMergedPullRequest';
+import Ph from './productHunt';
+import GhMerge from './ghMerge';
 
 const registerToTopic = functions.https.onRequest(async (req, resp) => {
   try {
@@ -20,9 +20,9 @@ const registerToTopic = functions.https.onRequest(async (req, resp) => {
 
 Object.assign(exports, {
   registerToTopic,
-  ...new RedditProgramming().createHandlers(),
+  ...new Reddit().createHandlers(),
   ...new Hn().createHandlers(),
-  ...new PhDaily().createHandlers(),
+  ...new Ph().createHandlers(),
   ...new GhTrending().createHandlers(),
   ...new GhMerge().createHandlers()
 });

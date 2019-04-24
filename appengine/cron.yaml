@@ -1,25 +1,29 @@
 cron:
 
-- description: Broadcast a fetch command
-  url: /publish/fetch
+- description: scnr -> gh merge
+  url: /publish/ghMerge
   schedule: every 1 hours
 
-- description: Broadcast a fetch command
-  url: /publish/fetch-1
+- description: scnr -> gh trending
+  url: /publish/ghTrending
   schedule: every 1 hours from 00:03 to 23:03
 
-- description: Broadcast a fetch command
-  url: /publish/fetch-2
-  schedule: every 1 hours from 00:06 to 23:06
+- description: scnr -> hn
+  url: /publish/hackerNews
+  schedule: every 1 hours from 00:03 to 23:03
 
-- description: Broadcast a fetch command
-  url: /publish/fetch-3
-  schedule: every 1 hours from 00:09 to 23:09
+- description: scnr -> ph
+  url: /publish/productHunt
+  schedule: every 1 hours from 00:03 to 23:03
 
-- description: Broadcast a fetch command
-  url: /publish/fetch-4
-  schedule: every 1 hours from 00:12 to 23:12
+- description: scnr -> reddit
+  url: /publish/reddit
+  schedule: every 1 hours from 00:03 to 23:03
 
 - description: clean
   url: /publish/clean
+  schedule: every 24 hours
+
+- description: clean
+  url: /publish/dbClean
   schedule: every 24 hours

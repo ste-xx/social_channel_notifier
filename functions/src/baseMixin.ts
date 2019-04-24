@@ -1,10 +1,10 @@
 import * as admin from "firebase-admin";
 import Payload from "./payload";
 
-import {projectName as ghMergedPullRequestProjectName} from './ghMergedPullRequest'
+import {projectName as ghMergedPullRequestProjectName} from './ghMerge'
 import {projectName as ghTrendingProjectName} from './ghTrending';
-import {projectName as hnProjectName} from './hn';
-import {projectName as phDailyProjectName} from './phDaily';
+import {projectName as hnProjectName} from './hackerNews';
+import {projectName as phDailyProjectName} from './productHunt';
 import {projectName as rProgrammingProjectName} from './reddit';
 
 export type projectName = ghMergedPullRequestProjectName

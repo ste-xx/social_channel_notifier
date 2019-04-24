@@ -5,8 +5,7 @@ import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
 import * as admin from "firebase-admin";
 
-export type projectName = 'phDaily';
-const dbSecret = `secret/ph`;
+export type projectName = 'productHunt';
 const MIN_VOTES = 300;
 
 class PhDaily implements CreateHandlerMixin {
@@ -16,11 +15,7 @@ class PhDaily implements CreateHandlerMixin {
   }
 
   getProjectName(): projectName{
-    return 'phDaily';
-  }
-
-  onCronTopic(): "fetch-1" {
-    return "fetch-1";
+    return 'productHunt';
   }
 
   getDbRef: () => string;
@@ -29,7 +24,7 @@ class PhDaily implements CreateHandlerMixin {
 
   async do(): Promise<Payload[]> {
 
-    const {client_id, client_secret} = await admin.database().ref(dbSecret).once('value').then(snapshot => snapshot.val());
+    const {client_id, client_secret} = await admin.database().ref(`secret/${this.getProjectName()}`).once('value').then(snapshot => snapshot.val());
     const {data: {access_token}} = await axios(`https://api.producthunt.com/v1/oauth/token`, {
       method: 'post',
       data: {
