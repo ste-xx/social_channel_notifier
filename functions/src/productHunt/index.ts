@@ -6,13 +6,21 @@ import BaseMixin from "../baseMixin";
 import * as admin from "firebase-admin";
 
 export type projectName = 'productHunt';
-const MIN_VOTES = 300;
 
-class PhDaily implements CreateHandlerMixin {
+interface PhConfig {
+  minVotes: number;
+}
 
-  async getConfig(): Promise<[]> {
-    return [];
+class Ph implements CreateHandlerMixin {
+
+  getConfig: () => Promise<any>;
+
+  getStaticConfig(): PhConfig {
+    return {
+      minVotes: 300
+    };
   }
+
 
   getProjectName(): projectName{
     return 'productHunt';
@@ -22,8 +30,8 @@ class PhDaily implements CreateHandlerMixin {
   createHandlers: () => any;
   getEntriesFromDb: () => Promise<string>;
 
-  async do(): Promise<Payload[]> {
 
+  async getAccessToken(): Promise<string> {
     const {client_id, client_secret} = await admin.database().ref(`secret/${this.getProjectName()}`).once('value').then(snapshot => snapshot.val());
     const {data: {access_token}} = await axios(`https://api.producthunt.com/v1/oauth/token`, {
       method: 'post',
@@ -34,14 +42,18 @@ class PhDaily implements CreateHandlerMixin {
       }
     });
     console.log(`logged in ${access_token}`);
+    return access_token;
+  }
 
+  async do(): Promise<Payload[]> {
+    const accessToken = await this.getAccessToken();
     const {data: {posts}} = await axios(`https://api.producthunt.com/v1/posts`, {
       method: 'get',
       headers: {
         Accept: 'application/json',
         "Content-Type": 'application/json',
         Host: 'api.producthunt.com',
-        Authorization: `Bearer ${access_token}`
+        Authorization: `Bearer ${accessToken}`
       }
     });
 
@@ -49,7 +61,7 @@ class PhDaily implements CreateHandlerMixin {
       console.log('analyze post:', post);
       return post;
     })
-      .filter(({votes_count}) => votes_count > MIN_VOTES)
+      .filter(({votes_count}) => votes_count > this.getStaticConfig().minVotes)
       .map(({id, name, tagline, votes_count, discussion_url}): Payload => ({
         db: {
           id: `${id}`,
@@ -65,5 +77,5 @@ class PhDaily implements CreateHandlerMixin {
   }
 }
 
-applyMixins(PhDaily, [BaseMixin, CreateHandlerMixin]);
-export default PhDaily;
+applyMixins(Ph, [BaseMixin, CreateHandlerMixin]);
+export default Ph;

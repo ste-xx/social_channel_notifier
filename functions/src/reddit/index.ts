@@ -6,14 +6,20 @@ import BaseMixin from "../baseMixin";
 
 export type projectName = 'reddit';
 
-const MIN_SCORE = 500;
-const redditTopic = 'r/programming';
-
+interface RedditConfig {
+  topic: string,
+  minScore: number
+}
 
 class RProgramming implements CreateHandlerMixin {
 
-  async getConfig(): Promise<[]> {
-    return [];
+  getConfig: () => Promise<any>;
+
+  getStaticConfig(): RedditConfig{
+    return {
+      topic: 'r/programming',
+      minScore: 500
+    };
   }
 
   getProjectName(): projectName {
@@ -26,7 +32,7 @@ class RProgramming implements CreateHandlerMixin {
 
   async do(): Promise<Payload[]> {
     const start = new Date();
-    const {data: {children: posts}} = await axios.get(`https://www.reddit.com/${redditTopic}/top/.json`, {params: {t: 'week'}})
+    const {data: {children: posts}} = await axios.get(`https://www.reddit.com/${this.getStaticConfig().topic}/top/.json`, {params: {t: 'week'}})
       .then(({data}) => data);
 
     return posts.map(({data}) => data)
@@ -34,7 +40,7 @@ class RProgramming implements CreateHandlerMixin {
         console.log('analyze post:', post);
         return post;
       })
-      .filter(({score}) => score >= MIN_SCORE)
+      .filter(({score}) => score >= this.getStaticConfig().minScore)
       .map(({id, title, score, permalink}): Payload => ({
         db: {
           id,

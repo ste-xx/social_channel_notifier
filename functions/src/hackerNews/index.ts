@@ -5,13 +5,21 @@ import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
 
 export type projectName = 'hackerNews';
-
-const MIN_POINTS = 500;
 const DAY_IN_SECONDS = 86400;
 
+interface HNConfig {
+  minPoints: number,
+  days: number
+}
+
 class HN implements CreateHandlerMixin {
-  async getConfig(): Promise<[]> {
-    return [];
+  getConfig: () => Promise<any>;
+
+  getStaticConfig(): HNConfig {
+    return {
+      minPoints: 500,
+      days: 7
+    };
   }
 
   getProjectName(): projectName {
@@ -23,16 +31,16 @@ class HN implements CreateHandlerMixin {
   getEntriesFromDb: () => Promise<string>;
 
   async do(): Promise<Payload[]> {
+    const {minPoints, days} = this.getStaticConfig();
     const currentTimestampInSeconds = parseInt(`${new Date().getTime() / 1000}`, 10);
-    const lastWeekTimestampInSeconds = currentTimestampInSeconds - DAY_IN_SECONDS * 7;
-    console.log(`timestamp in seconds: ${lastWeekTimestampInSeconds}`);
-
+    const lastTimestampInSeconds = currentTimestampInSeconds - DAY_IN_SECONDS * days;
+    console.log(`timestamp in seconds: ${lastTimestampInSeconds}`);
     const {data: {hits}} = await axios.get(`https://hn.algolia.com/api/v1/search`, {
       params: {
         query: '',
         tags: 'story',
         page: 0,
-        numericFilters: `created_at_i>${lastWeekTimestampInSeconds},points>${MIN_POINTS}`
+        numericFilters: `created_at_i>${lastTimestampInSeconds},points>${minPoints}`
       }
     });
 

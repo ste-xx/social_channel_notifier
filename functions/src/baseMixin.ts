@@ -6,12 +6,14 @@ import {projectName as ghTrendingProjectName} from './ghTrending';
 import {projectName as hnProjectName} from './hackerNews';
 import {projectName as phDailyProjectName} from './productHunt';
 import {projectName as rProgrammingProjectName} from './reddit';
+import {projectName as dbCleanProjectName} from "./dbClean";
 
 export type projectName = ghMergedPullRequestProjectName
   | ghTrendingProjectName
   | hnProjectName
   | phDailyProjectName
   | rProgrammingProjectName
+  | dbCleanProjectName
 
 export default class BaseMixin {
   do: () => Promise<Payload[]>;
