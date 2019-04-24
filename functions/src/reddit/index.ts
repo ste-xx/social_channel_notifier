@@ -4,13 +4,19 @@ import Payload from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
 
+export type projectName = 'r_programming';
+
 const MIN_SCORE = 500;
 const redditTopic = 'r/programming';
 
 
 class RProgramming implements CreateHandlerMixin {
 
-  getProjectName(): string {
+  async getConfig(): Promise<[]> {
+    return [];
+  }
+
+  getProjectName(): projectName {
     return 'r_programming';
   }
 

@@ -5,12 +5,17 @@ import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
 import * as admin from "firebase-admin";
 
+export type projectName = 'phDaily';
 const dbSecret = `secret/ph`;
 const MIN_VOTES = 300;
 
 class PhDaily implements CreateHandlerMixin {
 
-  getProjectName(): string {
+  async getConfig(): Promise<[]> {
+    return [];
+  }
+
+  getProjectName(): projectName{
     return 'phDaily';
   }
 

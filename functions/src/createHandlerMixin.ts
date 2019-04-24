@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
-import BaseMixin from "./baseMixin";
+import BaseMixin, {projectName} from "./baseMixin";
 import Payload from "./payload";
 import axios, {AxiosResponse} from "axios";
 
@@ -10,8 +10,9 @@ export default class CreateHandlerMixin implements BaseMixin {
   do: () => Promise<Payload[]>;
   onCronTopic: () => onCronTopicType;
   getDbRef: () => any;
-  getProjectName: () => string;
+  getProjectName: () => projectName;
   getEntriesFromDb: () => Promise<string>;
+  getConfig: () => Promise<any>;
 
   createHandlers(): any {
     const escapeId = (id) => id.replace(/[#.$\/\[\]]/g,'');

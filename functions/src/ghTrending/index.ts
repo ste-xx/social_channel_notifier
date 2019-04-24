@@ -3,13 +3,12 @@ import CreateHandlerMixin from '../createHandlerMixin';
 import Payload from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
-import * as admin from "firebase-admin";
+
+export type projectName = 'ghTrending';
 
 export interface GhTrendingConfig {
   language: string,
 }
-
-const dbConfig = `config/ghTrending`;
 
 interface GhTrendingProject {
   name: string;
@@ -23,7 +22,7 @@ interface GhTrendingResponse {
 }
 
 class GhTrending implements CreateHandlerMixin {
-  getProjectName(): string {
+  getProjectName(): projectName {
     return 'ghTrending';
   }
 
@@ -34,6 +33,7 @@ class GhTrending implements CreateHandlerMixin {
   getDbRef: () => string;
   createHandlers: () => any;
   getEntriesFromDb: () => Promise<string>;
+  getConfig: () => Promise<GhTrendingConfig[]>;
 
   async requestGhTrendingWith(config: GhTrendingConfig): Promise<GhTrendingResponse> {
     const url = 'https://github-trending-api.now.sh/repositories';
@@ -46,8 +46,7 @@ class GhTrending implements CreateHandlerMixin {
   }
 
   async do(): Promise<Payload[]> {
-    const configs: GhTrendingConfig[] = await admin.database().ref(dbConfig).once('value').then(snapshot => snapshot.val());
-    const results = await Promise.all(configs.map(config => this.requestGhTrendingWith(config)));
+    const results = await Promise.all((await this.getConfig()).map(config => this.requestGhTrendingWith(config)));
     const ghTrendingProjects: GhTrendingProject[] = results.reduce((acc, cur) => [...acc, ...cur.data], []);
 
     return ghTrendingProjects

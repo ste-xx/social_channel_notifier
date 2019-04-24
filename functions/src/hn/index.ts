@@ -4,12 +4,17 @@ import Payload from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
 
+export type projectName = 'HN';
+
 const MIN_POINTS = 500;
 const DAY_IN_SECONDS = 86400;
 
 class HN implements CreateHandlerMixin {
+  async getConfig(): Promise<[]> {
+    return [];
+  }
 
-  getProjectName(): string {
+  getProjectName(): projectName {
     return 'HN';
   }
 

@@ -13,13 +13,31 @@ interface GhMergedConfig {
   owner: string
 }
 
+export type projectName = 'ghMerge';
+
 const dbSecret = `secret/gh`;
-const dbConfig = `config/ghMerge`;
+
+
+interface GhPullRequests {
+  title: string,
+  id: string
+  updatedAt: string
+}
+
+interface GhMergeResponse {
+  name: string
+  owner: {
+    url: string
+  }
+  pullRequests: {
+    nodes: GhPullRequests []
+  }
+}
 
 
 class GhMerge implements CreateHandlerMixin {
 
-  getProjectName(): string {
+  getProjectName(): projectName {
     return 'ghMerge';
   }
 
@@ -30,6 +48,7 @@ class GhMerge implements CreateHandlerMixin {
   getDbRef: () => string;
   createHandlers: () => any;
   getEntriesFromDb: () => Promise<string>;
+  getConfig: () => Promise<GhMergedConfig[]>;
 
   // @ts-ignore
   async createClient(): Promise<ApolloClient> {
@@ -48,9 +67,6 @@ class GhMerge implements CreateHandlerMixin {
   }
 
   async do(): Promise<Payload[]> {
-    const client = await this.createClient();
-    const configs: GhMergedConfig[] = await admin.database().ref(dbConfig).once('value').then(snapshot => snapshot.val());
-
     const fields = `{
       id
       name
@@ -68,29 +84,14 @@ class GhMerge implements CreateHandlerMixin {
 
     const query = `
       query {
-        ${configs.map(({alias, name, owner}) => `${alias ? alias : name}: repository (name: "${name}", owner: "${owner}") ${fields} \n`)}
+        ${(await this.getConfig()).map(({alias, name, owner}) => `${alias ? alias : name}: repository (name: "${name}", owner: "${owner}") ${fields} \n`)}
       }
     `;
+
+    const client = await this.createClient();
     const {data} = await client.query({
       query: gql(query),
     });
-
-
-    interface GhPullRequests {
-      title: string,
-      id: string
-      updatedAt: string
-    }
-
-    interface GhMergeResponse {
-      name: string
-      owner: {
-        url: string
-      }
-      pullRequests: {
-        nodes: GhPullRequests []
-      }
-    }
 
     return Object.entries(data).map(([key, value]) => {
       const response = value as GhMergeResponse;
