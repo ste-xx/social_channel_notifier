@@ -7,6 +7,7 @@ import Hn from './hackerNews';
 import GhTrending from './ghTrending';
 import Ph from './productHunt';
 import GhMerge from './ghMerge';
+import DbClean from './dbClean';
 
 const registerToTopic = functions.https.onRequest(async (req, resp) => {
   try {
@@ -24,5 +25,6 @@ Object.assign(exports, {
   ...new Hn().createHandlers(),
   ...new Ph().createHandlers(),
   ...new GhTrending().createHandlers(),
-  ...new GhMerge().createHandlers()
+  ...new GhMerge().createHandlers(),
+  ...new DbClean().createHandlers()
 });

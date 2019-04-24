@@ -21,9 +21,5 @@ cron:
   schedule: every 1 hours from 00:03 to 23:03
 
 - description: clean
-  url: /publish/clean
-  schedule: every 24 hours
-
-- description: clean
   url: /publish/dbClean
   schedule: every 24 hours

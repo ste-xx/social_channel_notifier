@@ -13,23 +13,6 @@ export default class CreateHandlerMixin implements BaseMixin {
 
   createHandlers(): any {
     const escapeId = (id) => id.replace(/[#.$\/\[\]]/g,'');
-
-    const cleanDb = async (): Promise<any> => {
-      const dayInMs = 86400000;
-      const deleteAfter = dayInMs * 10;
-      const db = admin.database().ref(this.getDbRef());
-      const inDb = await db.once('value').then(snapshot => snapshot.val());
-      return Promise.all(Object.entries(inDb)
-      // @ts-ignore
-        .filter(([, {created = 0}]) => created < (new Date().getTime() - deleteAfter))
-        .map(([key]) => key)
-        .map((key) => {
-          console.log(`delete: ${key}`);
-          return key;
-        })
-        .map(key => admin.database().ref(`${this.getDbRef()}/${key}`).remove()));
-    };
-
     const writeToDb = async (payload: Payload[]): Promise<void[]> => {
       const db = admin.database().ref(this.getDbRef());
       return Promise.all(payload.map(({db: {id, ...payload}}) => {
@@ -66,10 +49,6 @@ export default class CreateHandlerMixin implements BaseMixin {
     };
 
     return {
-      // [`${this.getProjectName()}_DbCleanUp`]: functions.runWith({timeoutSeconds: 540}).pubsub
-      //   .topic('clean')
-      //   .onPublish(async () => cleanDb()),
-
       [`${this.getProjectName()}_Job`]: functions.runWith({timeoutSeconds: 540}).pubsub
         .topic(this.getProjectName())
         .onPublish(async () => {
