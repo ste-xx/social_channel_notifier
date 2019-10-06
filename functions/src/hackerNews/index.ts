@@ -1,6 +1,6 @@
 import axios from 'axios/index';
 import CreateHandlerMixin from '../createHandlerMixin';
-import Payload from "../payload";
+import Payload, {DbEntries} from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
 
@@ -28,7 +28,7 @@ class HN implements CreateHandlerMixin {
 
   getDbRef: () => string;
   createHandlers: () => any;
-  getEntriesFromDb: () => Promise<string>;
+  getEntriesFromDb: () => Promise<DbEntries[]>;
 
   async do(): Promise<Payload[]> {
     const {minPoints, days} = this.getStaticConfig();
@@ -49,16 +49,11 @@ class HN implements CreateHandlerMixin {
       return post;
     })
       .map(({title, points, objectID}): Payload => ({
-        db: {
-          id: objectID,
-          url: `https://news.ycombinator.com/item?id=${objectID}`,
-          created: new Date().getTime()
-        },
-        notification: {
-          title: `${this.getProjectName()}: (${points})`,
-          body: `${title}`,
-          link: `https://news.ycombinator.com/item?id=${objectID}`
-        }
+        id: objectID,
+        url: `https://news.ycombinator.com/item?id=${objectID}`,
+        created: new Date().getTime(),
+        title: `${this.getProjectName()}: (${points})`,
+        body: `${title}`
       }));
   }
 }

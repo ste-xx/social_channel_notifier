@@ -1,6 +1,6 @@
 import axios from 'axios/index';
 import CreateHandlerMixin from '../createHandlerMixin';
-import Payload from "../payload";
+import Payload, {DbEntries} from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
 import * as admin from "firebase-admin";
@@ -22,13 +22,13 @@ class Ph implements CreateHandlerMixin {
   }
 
 
-  getProjectName(): projectName{
+  getProjectName(): projectName {
     return 'productHunt';
   }
 
   getDbRef: () => string;
   createHandlers: () => any;
-  getEntriesFromDb: () => Promise<string>;
+  getEntriesFromDb: () => Promise<DbEntries[]>;
 
 
   async getAccessToken(): Promise<string> {
@@ -63,16 +63,11 @@ class Ph implements CreateHandlerMixin {
     })
       .filter(({votes_count}) => votes_count > this.getStaticConfig().minVotes)
       .map(({id, name, tagline, votes_count, discussion_url}): Payload => ({
-        db: {
-          id: `${id}`,
-          url: discussion_url,
-          created: new Date().getTime()
-        },
-        notification: {
-          title: `${this.getProjectName()}: ${name} (${votes_count})`,
-          body: `${tagline}`,
-          link: discussion_url
-        }
+        id: `${id}`,
+        url: discussion_url,
+        created: new Date().getTime(),
+        title: `${this.getProjectName()}: ${name} (${votes_count})`,
+        body: `${tagline}`
       }));
   }
 }

@@ -1,21 +1,21 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import BaseMixin, {projectName} from "./baseMixin";
-import Payload from "./payload";
+import Payload, {DbEntries, DbEntry} from "./payload";
 import axios, {AxiosResponse} from "axios";
 
 export default class CreateHandlerMixin implements BaseMixin {
   do: () => Promise<Payload[]>;
   getDbRef: () => any;
   getProjectName: () => projectName;
-  getEntriesFromDb: () => Promise<string>;
+  getEntriesFromDb: () => Promise<DbEntries[]>;
   getConfig: () => Promise<any>;
 
   createHandlers(): any {
-    const escapeId = (id) => id.replace(/[#.$\/\[\]]/g,'');
+    const escapeId = (id) => id.replace(/[#.$\/\[\]]/g, '');
     const writeToDb = async (payload: Payload[]): Promise<void[]> => {
       const db = admin.database().ref(this.getDbRef());
-      return Promise.all(payload.map(({db: {id, ...payload}}) => {
+      return Promise.all(payload.map(({id, ...payload}) => {
         const transformedId = escapeId(id);
         console.log(`write id: ${transformedId} with payload`, payload);
         return db.update({[transformedId]: payload}).catch((err) => {
@@ -30,11 +30,11 @@ export default class CreateHandlerMixin implements BaseMixin {
       const channel = '@scnrr';
       const apiToken = await admin.database().ref(telegramDbSecret).once('value').then(snapshot => snapshot.val());
       return Promise.all(payload
-        .filter(({db: {id}}) => beforeUpdate === null || typeof beforeUpdate[escapeId(id)] === 'undefined')
-        .map(({notification: {title, body, link}}) =>
+        .filter(({id}) => beforeUpdate === null || typeof beforeUpdate[escapeId(id)] === 'undefined')
+        .map(({title, body, url}) =>
           axios.post(`https://api.telegram.org/bot${apiToken}/sendMessage`, {
             chat_id: channel,
-            text: `[${title}: ${body}](${link})`,
+            text: `[${title}: ${body}](${url})`,
             parse_mode: 'Markdown'
           })));
     };
@@ -63,6 +63,30 @@ export default class CreateHandlerMixin implements BaseMixin {
             const respMsg = `Successfully sent message: ${result}`;
             console.log(respMsg);
             return resp.send(respMsg);
+          } catch (e) {
+            console.warn(`Error sending message: ${e}`);
+            resp.send(`Error sending message: ${e}`);
+            return null;
+          }
+        }
+      ),
+      [`${this.getProjectName()}_Rss`]: functions.runWith({timeoutSeconds: 540}).https.onRequest(async (req, resp) => {
+          try {
+            const entries = Object.entries(await this.getEntriesFromDb())
+              .reduce((acc, cur) => [...acc, {...cur[1], id: cur[0]}], []);
+
+            entries.sort((a, b) => a.created - b.created);
+            const jsonFeed = {
+              version: "https://jsonfeed.org/version/1",
+              title: `Scnr: ${this.getProjectName()}`,
+              feed_url: `https://us-central1-social-channel-notifier.cloudfunctions.net/${this.getProjectName()}_Rss`,
+              items: entries.reverse().map(({id, title, url, body}) => ({
+                id,
+                title: `${title} ${body}`,
+                url
+              }))
+            };
+            return resp.send(jsonFeed);
           } catch (e) {
             console.warn(`Error sending message: ${e}`);
             resp.send(`Error sending message: ${e}`);

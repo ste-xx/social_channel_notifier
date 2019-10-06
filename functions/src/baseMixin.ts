@@ -1,5 +1,5 @@
 import * as admin from "firebase-admin";
-import Payload from "./payload";
+import Payload, {DbEntries} from "./payload";
 
 import {projectName as ghMergedPullRequestProjectName} from './ghMerge'
 import {projectName as ghTrendingProjectName} from './ghTrending';
@@ -30,7 +30,7 @@ export default class BaseMixin {
       .once('value').then(snapshot => snapshot.val());
   }
 
-  async getEntriesFromDb(): Promise<any> {
+  async getEntriesFromDb(): Promise<DbEntries[]> {
     const db = admin.database().ref(this.getDbRef());
     return db.once('value').then(snapshot => snapshot.val());
   }

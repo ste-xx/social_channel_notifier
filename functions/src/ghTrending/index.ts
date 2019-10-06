@@ -1,6 +1,6 @@
 import axios from 'axios/index';
 import CreateHandlerMixin from '../createHandlerMixin';
-import Payload from "../payload";
+import Payload, {DbEntries} from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
 
@@ -28,7 +28,7 @@ class GhTrending implements CreateHandlerMixin {
 
   getDbRef: () => string;
   createHandlers: () => any;
-  getEntriesFromDb: () => Promise<string>;
+  getEntriesFromDb: () => Promise<DbEntries[]>;
   getConfig: () => Promise<GhTrendingConfig[]>;
 
   async requestGhTrendingWith(config: GhTrendingConfig): Promise<GhTrendingResponse> {
@@ -51,17 +51,12 @@ class GhTrending implements CreateHandlerMixin {
         return project;
       })
       .map(({name, currentPeriodStars, description, url}) => ({
-        db: {
-          id: name.replace('.', ''),
-          url,
-          created: new Date().getTime()
-        },
-        notification: {
-          //add language/config
-          title: `${this.getProjectName()}: ${name} (${currentPeriodStars})`,
-          body: `${description}`,
-          link: url
-        }
+        id: name.replace('.', ''),
+        url,
+        created: new Date().getTime(),
+        //add language/config
+        title: `${this.getProjectName()}: ${name} (${currentPeriodStars})`,
+        body: `${description}`
       }));
   }
 }

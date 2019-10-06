@@ -1,5 +1,5 @@
 import CreateHandlerMixin from '../createHandlerMixin';
-import Payload from "../payload";
+import Payload, {DbEntries} from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
 import ApolloClient from "apollo-boost";
@@ -43,7 +43,7 @@ class GhMerge implements CreateHandlerMixin {
 
   getDbRef: () => string;
   createHandlers: () => any;
-  getEntriesFromDb: () => Promise<string>;
+  getEntriesFromDb: () => Promise<DbEntries[]>;
   getConfig: () => Promise<GhMergedConfig[]>;
 
   // @ts-ignore
@@ -93,16 +93,11 @@ class GhMerge implements CreateHandlerMixin {
       const response = value as GhMergeResponse;
       return response.pullRequests.nodes.map((pullRequest => {
         return {
-          db: {
-            id: pullRequest.id,
-            url: `${response.owner.url}/${response.name}`,
-            created: new Date().getTime()
-          },
-          notification: {
-            title: `GH Merged: ${response.name}`,
-            body: pullRequest.title,
-            link: `${response.owner.url}/${response.name}`
-          }
+          id: pullRequest.id,
+          url: `${response.owner.url}/${response.name}`,
+          created: new Date().getTime(),
+          title: `GH Merged: ${response.name}`,
+          body: pullRequest.title,
         };
       }));
     }).reduce((cur, acc) => {

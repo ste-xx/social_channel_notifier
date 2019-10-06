@@ -1,6 +1,6 @@
 import axios from 'axios/index';
 import CreateHandlerMixin from '../createHandlerMixin';
-import Payload from "../payload";
+import Payload, {DbEntries} from "../payload";
 import applyMixins from "../mixin";
 import BaseMixin from "../baseMixin";
 
@@ -15,7 +15,7 @@ class RProgramming implements CreateHandlerMixin {
 
   getConfig: () => Promise<any>;
 
-  getStaticConfig(): RedditConfig{
+  getStaticConfig(): RedditConfig {
     return {
       topic: 'r/programming',
       minScore: 500
@@ -28,7 +28,7 @@ class RProgramming implements CreateHandlerMixin {
 
   getDbRef: () => string;
   createHandlers: () => any;
-  getEntriesFromDb: () => Promise<string>;
+  getEntriesFromDb: () => Promise<DbEntries[]>;
 
   async do(): Promise<Payload[]> {
     const start = new Date();
@@ -42,16 +42,11 @@ class RProgramming implements CreateHandlerMixin {
       })
       .filter(({score}) => score >= this.getStaticConfig().minScore)
       .map(({id, title, score, permalink}): Payload => ({
-        db: {
-          id,
-          url: `https://reddit.com${permalink}`,
-          created: new Date().getTime()
-        },
-        notification: {
-          title: `${this.getProjectName()}: (${score})`,
-          body: `${title}`,
-          link: `https://reddit.com${permalink}`
-        }
+        id,
+        url: `https://reddit.com${permalink}`,
+        created: new Date().getTime(),
+        title: `${this.getProjectName()}: (${score})`,
+        body: `${title}`
       }));
   }
 }

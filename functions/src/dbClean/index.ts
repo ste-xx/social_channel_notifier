@@ -1,7 +1,7 @@
 import CreateHandlerMixin from '../createHandlerMixin';
 import applyMixins from "../mixin";
 import BaseMixin, {projectName} from "../baseMixin";
-import Payload from "../payload";
+import Payload, {DbEntries} from "../payload";
 import * as admin from "firebase-admin";
 
 const DAY_IN_MS = 86400000;
@@ -20,7 +20,7 @@ class DbClean implements CreateHandlerMixin {
 
   getDbRef: () => string;
   createHandlers: () => any;
-  getEntriesFromDb: () => Promise<string>;
+  getEntriesFromDb: () => Promise<DbEntries[]>;
   getConfig: () => Promise<DbCleanConfig[]>;
 
   async do(): Promise<Payload[]> {
