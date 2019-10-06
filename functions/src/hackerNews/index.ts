@@ -52,8 +52,8 @@ class HN implements CreateHandlerMixin {
         id: objectID,
         url: `https://news.ycombinator.com/item?id=${objectID}`,
         created: new Date().getTime(),
-        title: `${this.getProjectName()}: (${points})`,
-        body: `${title}`
+        title: `${title} (${points})`,
+        body: ''
       }));
   }
 }

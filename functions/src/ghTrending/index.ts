@@ -55,7 +55,7 @@ class GhTrending implements CreateHandlerMixin {
         url,
         created: new Date().getTime(),
         //add language/config
-        title: `${this.getProjectName()}: ${name} (${currentPeriodStars})`,
+        title: `${name} (${currentPeriodStars})`,
         body: `${description}`
       }));
   }

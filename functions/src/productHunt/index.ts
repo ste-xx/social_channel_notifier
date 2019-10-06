@@ -66,7 +66,7 @@ class Ph implements CreateHandlerMixin {
         id: `${id}`,
         url: discussion_url,
         created: new Date().getTime(),
-        title: `${this.getProjectName()}: ${name} (${votes_count})`,
+        title: `${name} (${votes_count})`,
         body: `${tagline}`
       }));
   }

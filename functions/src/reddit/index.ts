@@ -45,8 +45,8 @@ class RProgramming implements CreateHandlerMixin {
         id,
         url: `https://reddit.com${permalink}`,
         created: new Date().getTime(),
-        title: `${this.getProjectName()}: (${score})`,
-        body: `${title}`
+        title: `${title} (${score})`,
+        body: ``
       }));
   }
 }

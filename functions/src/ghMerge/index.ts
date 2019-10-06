@@ -96,7 +96,7 @@ class GhMerge implements CreateHandlerMixin {
           id: pullRequest.id,
           url: `${response.owner.url}/${response.name}`,
           created: new Date().getTime(),
-          title: `GH Merged: ${response.name}`,
+          title: `${response.name}`,
           body: pullRequest.title,
         };
       }));
