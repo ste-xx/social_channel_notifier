@@ -5,12 +5,13 @@ import { rProgramming } from "./reddit";
 import { hackerNews } from "./hackerNews";
 import { productHunt } from "./productHunt";
 import { ghMerge } from "./ghMerge";
+import { dbClean } from "./dbClean";
 
 Object.assign(exports, {
   ...rProgramming.createHandlers(),
   ...hackerNews.createHandlers(),
   ...productHunt.createHandlers(),
-  ...ghMerge.createHandlers()
+  ...ghMerge.createHandlers(),
   // ...new GhTrending().createHandlers(),
-  // ...new DbClean().createHandlers()
+  ...dbClean.createHandlers()
 });
