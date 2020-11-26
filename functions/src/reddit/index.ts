@@ -1,55 +1,57 @@
-import axios from 'axios/index';
-import CreateHandlerMixin from '../createHandlerMixin';
-import Payload, {DbEntries} from "../payload";
-import applyMixins from "../mixin";
-import BaseMixin from "../baseMixin";
+import fetch from 'node-fetch';
+import {URL} from 'url';
+import {Feed, FeedEntries, FeedEntry} from "../types";
+import {writeToDb} from "../db";
+import {createHttp, createJob, createRss} from "../createHandlers";
 
-export type projectName = 'reddit';
-
-interface RedditConfig {
-  topic: string,
-  minScore: number
+interface RedditResponse {
+  data: {
+    children: {
+      data: {
+        id: string;
+        title: string;
+        score: number;
+        permalink: string;
+      }
+    }[]
+  }
 }
 
-class RProgramming implements CreateHandlerMixin {
-
-  getConfig: () => Promise<any>;
-
-  getStaticConfig(): RedditConfig {
-    return {
+export const rProgramming: Feed<'reddit'> = {
+  projectName: 'reddit',
+  onPublish: async (): Promise<void> => {
+    const staticConfig = {
       topic: 'r/programming',
       minScore: 500
     };
-  }
 
-  getProjectName(): projectName {
-    return 'reddit';
-  }
+    const url = new URL(`https://www.reddit.com/${staticConfig.topic}/top/.json`);
+    url.searchParams.append('t', 'week')
 
-  getDbRef: () => string;
-  createHandlers: () => any;
-  getEntriesFromDb: () => Promise<DbEntries[]>;
+    const posts = await fetch(url)
+      .then(r => r.json() as Promise<RedditResponse>)
+      .then(r => r.data.children);
 
-  async do(): Promise<Payload[]> {
-    const start = new Date();
-    const {data: {children: posts}} = await axios.get(`https://www.reddit.com/${this.getStaticConfig().topic}/top/.json`, {params: {t: 'week'}})
-      .then(({data}) => data);
-
-    return posts.map(({data}) => data)
+    const entries: FeedEntries = posts
+      .map(({data}) => data)
       .map(post => {
         console.log('analyze post:', post);
         return post;
       })
-      .filter(({score}) => score >= this.getStaticConfig().minScore)
-      .map(({id, title, score, permalink}): Payload => ({
+      .filter(({score}) => score >= staticConfig.minScore)
+      .map(({id, title, score, permalink}): FeedEntry => ({
         id,
         url: `https://reddit.com${permalink}`,
         created: new Date().getTime(),
         title: `${title} (${score})`,
         body: ``
       }));
-  }
-}
+    await writeToDb(rProgramming, entries);
+  },
 
-applyMixins(RProgramming, [BaseMixin, CreateHandlerMixin]);
-export default RProgramming;
+  createHandlers: () => ({
+    reddit_Job: createJob(rProgramming),
+    reddit_Http: createHttp(rProgramming),
+    reddit_Rss: createRss(rProgramming)
+  })
+}
