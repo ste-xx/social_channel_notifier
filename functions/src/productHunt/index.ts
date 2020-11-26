@@ -78,8 +78,8 @@ export const productHunt: Feed<"productHunt"> & { getAccessToken: () => Promise<
   },
 
   createHandlers: () => ({
-    productHunt_Job: createJob(productHunt),
-    productHunt_Http: createHttp(productHunt),
-    productHunt_Rss: createRss(productHunt)
+    ...createJob(productHunt),
+    ...createHttp(productHunt),
+    ...createRss(productHunt)
   })
 };

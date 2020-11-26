@@ -54,8 +54,8 @@ export const hackerNews: Feed<"hackerNews"> = {
   },
 
   createHandlers: () => ({
-    hackerNews_Job: createJob(hackerNews),
-    hackerNews_Http: createHttp(hackerNews),
-    hackerNews_Rss: createRss(hackerNews)
+    ...createJob(hackerNews),
+    ...createHttp(hackerNews),
+    ...createRss(hackerNews)
   })
 };

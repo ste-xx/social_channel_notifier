@@ -52,8 +52,8 @@ export const rProgramming: Feed<"reddit"> = {
   },
 
   createHandlers: () => ({
-    reddit_Job: createJob(rProgramming),
-    reddit_Http: createHttp(rProgramming),
-    reddit_Rss: createRss(rProgramming)
+    ...createJob(rProgramming),
+    ...createHttp(rProgramming),
+    ...createRss(rProgramming)
   })
 };

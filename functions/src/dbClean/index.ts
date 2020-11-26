@@ -1,3 +1,18 @@
+import {Feed} from "../types";
+import {createHttp, createJob, createRss} from "../createHandlers";
+
+export const dbClean: Feed<'dbClean'> = {
+  projectName: 'dbClean',
+  onPublish: async ():Promise<void> => {
+
+  },
+  createHandlers: () => ({
+    ...createJob(dbClean),
+    ...createHttp(dbClean),
+    ...createRss(dbClean)
+  })
+}
+
 // import CreateHandlerMixin from '../createHandlerMixin';
 // import applyMixins from "../mixin";
 // import BaseMixin, {projectName} from "../baseMixin";

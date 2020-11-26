@@ -88,8 +88,8 @@ export const ghMerge: Feed<"ghMerge"> = {
   },
 
   createHandlers: () => ({
-    ghMerge_Job: createJob(ghMerge),
-    ghMerge_Http: createHttp(ghMerge),
-    ghMerge_Rss: createRss(ghMerge)
+    ...createJob(ghMerge),
+    ...createHttp(ghMerge),
+    ...createRss(ghMerge)
   })
 };
