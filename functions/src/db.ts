@@ -22,3 +22,11 @@ export const writeToDb = async <T extends string>(feed: Feed<T>, feedEntries: Fe
     })
   );
 };
+
+export const getSecret = <T extends string, U>(feed: Feed<T>): Promise<U> => {
+  return admin
+    .database()
+    .ref(`secret/${feed.projectName}`)
+    .once("value")
+    .then((snapshot) => snapshot.val() as U);
+}
