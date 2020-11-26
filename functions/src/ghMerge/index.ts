@@ -1,118 +1,95 @@
-// //   async getConfig(): Promise<any> {
-// //     return admin
-// //       .database()
-// //       .ref(`config/${this.getProjectName()}`)
-// //       .once('value').then(snapshot => snapshot.val());
-// //   }
+import { Feed, FeedEntries, FeedEntry } from "../types";
+import { createHttp, createJob, createRss } from "../createHandlers";
+import { getConfig, getSecret, writeToDb } from "../db";
+import fetch from "node-fetch";
 
+const fields = `{
+  id
+  name
+  owner {
+    url
+  }
+  pullRequests(last: 30, states: MERGED,orderBy: {field: UPDATED_AT, direction: ASC}) {
+   nodes {
+      title
+      id
+      updatedAt
+    }
+  }
+}`;
 
-// import CreateHandlerMixin from '../createHandlerMixin';
-// import Payload, {DbEntries} from "../payload";
-// import applyMixins from "../mixin";
-// import BaseMixin from "../baseMixin";
-// import ApolloClient from "apollo-boost";
-// import gql from "graphql-tag";
-// import fetch from 'node-fetch';
-// import * as admin from "firebase-admin";
-//
-// interface GhMergedConfig {
-//   alias?: string,
-//   name: string,
-//   owner: string
-// }
-//
-// export type projectName = 'ghMerge';
-//
-// const dbSecret = `secret/gh`;
-//
-//
-// interface GhPullRequests {
-//   title: string,
-//   id: string
-//   updatedAt: string
-// }
-//
-// interface GhMergeResponse {
-//   name: string
-//   owner: {
-//     url: string
-//   }
-//   pullRequests: {
-//     nodes: GhPullRequests []
-//   }
-// }
-//
-//
-// class GhMerge implements CreateHandlerMixin {
-//
-//   getProjectName(): projectName {
-//     return 'ghMerge';
-//   }
-//
-//   getDbRef: () => string;
-//   createHandlers: () => any;
-//   getEntriesFromDb: () => Promise<DbEntries[]>;
-//   getConfig: () => Promise<GhMergedConfig[]>;
-//
-//   // @ts-ignore
-//   async createClient(): Promise<ApolloClient> {
-//     const token = await admin.database().ref(dbSecret).once('value').then(snapshot => snapshot.val());
-//     return new ApolloClient({
-//       uri: 'https://api.github.com/graphql',
-//       fetch,
-//       request: async (operation): Promise<void> => {
-//         operation.setContext({
-//           headers: {
-//             authorization: `Bearer ${token}`,
-//           },
-//         });
-//       },
-//     });
-//   }
-//
-//   async do(): Promise<Payload[]> {
-//     const fields = `{
-//       id
-//       name
-//       owner {
-//         url
-//       }
-//       pullRequests(last: 30, states: MERGED,orderBy: {field: UPDATED_AT, direction: ASC}) {
-//        nodes {
-//           title
-//           id
-//           updatedAt
-//         }
-//       }
-//     }`;
-//
-//     const query = `
-//       query {
-//         ${(await this.getConfig()).map(({alias, name, owner}) => `${alias ? alias : name}: repository (name: "${name}", owner: "${owner}") ${fields} \n`)}
-//       }
-//     `;
-//
-//     const client = await this.createClient();
-//     const {data} = await client.query({
-//       query: gql(query),
-//     });
-//
-//     return Object.entries(data).map(([key, value]) => {
-//       const response = value as GhMergeResponse;
-//       return response.pullRequests.nodes.map((pullRequest => {
-//         return {
-//           id: pullRequest.id,
-//           url: `${response.owner.url}/${response.name}`,
-//           created: new Date().getTime(),
-//           title: `${response.name}`,
-//           body: pullRequest.title,
-//         };
-//       }));
-//     }).reduce((cur, acc) => {
-//       return [...acc, ...cur];
-//     }, []);
-//   }
-// }
-//
-// applyMixins(GhMerge, [BaseMixin, CreateHandlerMixin]);
-// export default GhMerge;
+interface ConfigEntry {
+  alias?: string;
+  name: string;
+  owner: string;
+}
+
+type GhMergeResponse = Record<
+  string,
+  {
+    data: {
+      id: string;
+      name: string;
+      owner: {
+        url: string;
+      };
+      pullRequests: {
+        nodes: {
+          title: string;
+          id: string;
+          updatedAt: string;
+        }[];
+      };
+    };
+  }
+>;
+
+export const ghMerge: Feed<"ghMerge"> = {
+  projectName: "ghMerge",
+
+  onPublish: async (): Promise<void> => {
+    const config = await getConfig<"ghMerge", ConfigEntry[]>(ghMerge);
+    const token = await getSecret<"ghMerge", string>(ghMerge);
+
+    const inner = config.map((entry) => `${entry.alias ?? entry.name}: repository (name: "${entry.name}", owner: "${entry.owner}") ${fields}`).join("\n");
+
+    const query = `
+      query {
+        ${inner}
+      }
+    `;
+
+    const result: GhMergeResponse = await fetch("https://api.github.com/graphql", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+        authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        query
+      })
+    }).then((r) => r.json() as Promise<GhMergeResponse>);
+
+    const entries: FeedEntries = Object.entries(result.data)
+      .map(([_, response]): FeedEntry[] =>
+        response.pullRequests.nodes.map(
+          ({ id, title }): FeedEntry => ({
+            id,
+            url: response.owner.url,
+            created: new Date().getTime(),
+            title: response.name,
+            body: title
+          })
+        )
+      )
+      .flat();
+
+    await writeToDb(ghMerge, entries);
+  },
+
+  createHandlers: () => ({
+    ghMerge_Job: createJob(ghMerge),
+    ghMerge_Http: createHttp(ghMerge),
+    ghMerge_Rss: createRss(ghMerge)
+  })
+};

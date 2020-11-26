@@ -47,8 +47,6 @@ export const productHunt: Feed<"productHunt"> & { getAccessToken: () => Promise<
     };
     const token = await productHunt.getAccessToken();
 
-    console.warn(token);
-
     const posts = await fetch("https://api.producthunt.com/v1/posts", {
       headers: {
         Accept: "application/json",
@@ -59,7 +57,7 @@ export const productHunt: Feed<"productHunt"> & { getAccessToken: () => Promise<
     })
       .then((r) => r.json() as Promise<ProductHuntResponse>)
       .then((r) => r.posts);
-    console.warn(posts);
+
     const entries: FeedEntries = posts
       .map((post) => {
         console.log("analyze post:", post);

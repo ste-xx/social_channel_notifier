@@ -23,10 +23,26 @@ export const writeToDb = async <T extends string>(feed: Feed<T>, feedEntries: Fe
   );
 };
 
+export const getEntries = <T extends string>(feed: Feed<T>): Promise<DbEntries> => {
+  return admin.database()
+    .ref(`data/${feed.projectName}`)
+    .once("value")
+    .then((snapshot) => snapshot.val() as DbEntries);
+}
+
 export const getSecret = <T extends string, U>(feed: Feed<T>): Promise<U> => {
   return admin
     .database()
     .ref(`secret/${feed.projectName}`)
+    .once("value")
+    .then((snapshot) => snapshot.val() as U);
+}
+
+
+export const getConfig = <T extends string, U>(feed: Feed<T>): Promise<U> => {
+  return admin
+    .database()
+    .ref(`config/${feed.projectName}`)
     .once("value")
     .then((snapshot) => snapshot.val() as U);
 }

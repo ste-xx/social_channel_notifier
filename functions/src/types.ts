@@ -29,6 +29,6 @@ export type Rss<T extends string> = {
 
 export type Feed<T extends string> = {
   projectName: T;
-  onPublish: () => Promise<void>;
+  onPublish: () => Promise<unknown>;
   createHandlers: () => Job<T> & Http<T> & Rss<T>;
 };

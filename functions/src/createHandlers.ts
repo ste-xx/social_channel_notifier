@@ -1,24 +1,23 @@
-import { DbEntries, Feed, FeedEntries } from "./types";
+import { Feed, FeedEntries } from "./types";
 import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
 import { CloudFunction, HttpsFunction } from "firebase-functions/lib/cloud-functions";
 import { Message } from "firebase-functions/lib/providers/pubsub";
+import { getEntries } from "./db";
 
 export const createJob = <T extends string>(feed: Feed<T>): CloudFunction<Message> => functions.runWith({ timeoutSeconds: 540 }).pubsub.topic(feed.projectName).onPublish(feed.onPublish);
 
 export const createHttp = <T extends string>(feed: Feed<T>): HttpsFunction =>
   functions.runWith({ timeoutSeconds: 540 }).https.onRequest(
     async (req, resp): Promise<void> => {
-      await feed.onPublish();
-      resp.send("done");
+      const result = await feed.onPublish();
+      resp.send(`done \n ${JSON.stringify(result, null, 2)}`);
     }
   );
 
 export const createRss = <T extends string>(feed: Feed<T>): HttpsFunction =>
   functions.runWith({ timeoutSeconds: 540 }).https.onRequest(
     async (req, resp): Promise<void> => {
-      const db = admin.database().ref(`data/${feed.projectName}`);
-      const entries: FeedEntries = Object.values(await db.once("value").then((snapshot) => snapshot.val() as DbEntries));
+      const entries: FeedEntries = Object.values(await getEntries(feed));
       entries.sort((a, b) => a.created - b.created);
 
       const jsonFeed = {
