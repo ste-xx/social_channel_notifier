@@ -3,25 +3,31 @@ import * as functions from "firebase-functions";
 import { getEntries } from "./db";
 
 export const createJob = <T extends string>(feed: Feed<T>): Job<T> => {
+  const prop: keyof Job<T> = `${feed.projectName}_Job` as const;
+
   return {
-    [`${feed.projectName}_Job`]: functions.runWith({ timeoutSeconds: 540 }).pubsub.topic(feed.projectName).onPublish(feed.onPublish)
+    [prop]: functions.runWith({ timeoutSeconds: 540 }).pubsub.topic(feed.projectName).onPublish(feed.onPublish)
   } as Job<T>;
 };
 
 export const createHttp = <T extends string>(feed: Feed<T>): Http<T> => {
+  const prop: keyof Http<T> = `${feed.projectName}_Http` as const;
+
   return {
-    [`${feed.projectName}_Http`]: functions.runWith({ timeoutSeconds: 540 }).https.onRequest(
+    [prop]: functions.runWith({ timeoutSeconds: 540 }).https.onRequest(
       async (req, resp): Promise<void> => {
         const result = await feed.onPublish();
         resp.send(`done \n ${JSON.stringify(result, null, 2)}`);
       }
     )
-  } as Http<T>;
+  } as Http<T>
 };
 
 export const createRss = <T extends string>(feed: Feed<T>): Rss<T> => {
+  const prop: keyof Rss<T> = `${feed.projectName}_Rss` as const;
+
   return {
-    [`${feed.projectName}_Rss`]: functions.runWith({ timeoutSeconds: 540 }).https.onRequest(
+    [prop]: functions.runWith({ timeoutSeconds: 540 }).https.onRequest(
       async (req, resp): Promise<void> => {
         const entries: FeedEntries = Object.values(await getEntries(feed));
         entries.sort((a, b) => a.created - b.created);
