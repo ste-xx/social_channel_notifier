@@ -4,11 +4,10 @@
   "description": "Send push notification if a social channel like reddit, hn has an post which outruns a specific upvote threshold",
   "author": "ste-xx <stefan.breitenstein@gmail.com>",
   "private": true,
-  "scripts": {
-  },
-  "dependencies": {
-  },
+  "scripts": {},
+  "dependencies": {},
   "devDependencies": {
+    "prettier": "^2.2.0"
   },
   "engines": {
     "node": "12"
@@ -17,5 +16,9 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "prettier": {
+    "trailingComma": "none",
+    "printWidth": 200
+  }
 }

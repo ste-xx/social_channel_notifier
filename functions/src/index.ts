@@ -1,11 +1,12 @@
-import * as admin from 'firebase-admin';
+import * as admin from "firebase-admin";
 
 admin.initializeApp();
-import {rProgramming} from './reddit';
+import { rProgramming } from "./reddit";
+import { hackerNews } from "./hackerNews";
 
 Object.assign(exports, {
-  ...rProgramming.createHandlers()
-  // ...new Hn().createHandlers(),
+  ...rProgramming.createHandlers(),
+  ...hackerNews.createHandlers()
   // ...new Ph().createHandlers(),
   // ...new GhTrending().createHandlers(),
   // ...new GhMerge().createHandlers(),
