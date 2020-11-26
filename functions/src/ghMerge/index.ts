@@ -71,7 +71,7 @@ export const ghMerge: Feed<"ghMerge"> = {
     }).then((r) => r.json() as Promise<GhMergeResponse>);
 
     const entries: FeedEntries = Object.entries(result.data)
-      .map(([_, response]): FeedEntry[] =>
+      .map(([, response]): FeedEntry[] =>
         response.pullRequests.nodes.map(
           ({ id, title }): FeedEntry => ({
             id,
