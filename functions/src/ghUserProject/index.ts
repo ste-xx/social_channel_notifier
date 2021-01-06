@@ -75,7 +75,7 @@ export const ghUserProject: Feed<"ghUserProject"> = {
         e.node.repositories.edges.map(({ node: { id, name, description } }) => ({
           id,
           url: `https://github/${username}/${name}`,
-          created: 0,
+          created: new Date().getTime(),
           title: `${username}: ${name}`,
           body: description ?? ""
         }))
