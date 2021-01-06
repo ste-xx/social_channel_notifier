@@ -5,6 +5,7 @@ import { rProgramming } from "./reddit";
 import { hackerNews } from "./hackerNews";
 import { productHunt } from "./productHunt";
 import { ghMerge } from "./ghMerge";
+import { ghUserProject } from "./ghUserProject";
 import { dbClean } from "./dbClean";
 
 Object.assign(exports, {
@@ -12,6 +13,7 @@ Object.assign(exports, {
   ...hackerNews.createHandlers(),
   ...productHunt.createHandlers(),
   ...ghMerge.createHandlers(),
+  ...ghUserProject.createHandlers(),
   // ...new GhTrending().createHandlers(),
   ...dbClean.createHandlers()
 });
