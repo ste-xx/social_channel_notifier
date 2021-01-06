@@ -3,7 +3,7 @@ import { createHttp, createJob, createRss } from "../createHandlers";
 import { getConfig, getSecret, writeToDb } from "../db";
 import fetch from "node-fetch";
 
-const createQueryPartial = (user: string) =>  `{
+const createQueryPartial = (user: string) =>  `
   ${user}: search(query: "${user}", type: USER, first: 1) {
     edges {
       node {
@@ -22,7 +22,6 @@ const createQueryPartial = (user: string) =>  `{
       }
     }
   }
-}
 `;
 
 interface ConfigEntry {
@@ -59,6 +58,8 @@ export const ghUserProject: Feed<"ghUserProject"> = {
       }
     `;
 
+    console.warn(query);
+
     const result: GhUserProjectResponse = await fetch("https://api.github.com/graphql", {
       method: "post",
       headers: {
@@ -69,6 +70,8 @@ export const ghUserProject: Feed<"ghUserProject"> = {
         query
       })
     }).then((r) => r.json() as Promise<GhUserProjectResponse>);
+
+    console.warn(result);
 
     const entries: FeedEntries = Object.entries(result.data).flatMap(([username, entry]) =>
       entry.edges.flatMap((e) =>

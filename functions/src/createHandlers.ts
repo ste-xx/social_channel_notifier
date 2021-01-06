@@ -38,11 +38,12 @@ export const createRss = <T extends string>(feed: Feed<T>): Rss<T> => {
           feed_url: `https://us-central1-social-channel-notifier.cloudfunctions.net/${feed.projectName}_Rss`,
           items: entries.reverse().map(({ id, title, url, body }) => ({
             id,
-            title: `${title} ${body}`,
+            title,
+            content_text: body,
             url
           }))
         };
-
+        resp.set('Content-Type', 'application/json');
         resp.send(JSON.stringify(jsonFeed, null, 2));
       }
     )
