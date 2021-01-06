@@ -5,7 +5,7 @@ cron:
   schedule: every 1 hours
 
 - description: scnr -> gh user project
-  url: /publish/ghMerge
+  url: /publish/ghUserProject
   schedule: every 1 hours
 
 - description: scnr -> gh trending
