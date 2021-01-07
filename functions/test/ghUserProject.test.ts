@@ -74,42 +74,42 @@ describe("GhUserProject", () => {
   const expectedFeedEntries = [
     {
       id: "MDEwOlJlcG9zaXRvcnkzMjA2MzIyODg=",
-      url: "https://github/aws/cta",
+      url: "https://github.com/aws/cta",
       created: 0,
       title: "aws: cta",
       body: "Code translation assistance, a feature of Porting Assistant for .NET, helps users automate some aspects of their porting experience using a set of predefined rules and actions."
     },
     {
       id: "MDEwOlJlcG9zaXRvcnkzMTczMzk4NTA=",
-      url: "https://github/aws/jsii-runtime-go",
+      url: "https://github.com/aws/jsii-runtime-go",
       created: 0,
       title: "aws: jsii-runtime-go",
       body: ""
     },
     {
       id: "MDEwOlJlcG9zaXRvcnkzMTU3NjMyODA=",
-      url: "https://github/aws/aws-lambda-runtime-interface-emulator",
+      url: "https://github.com/aws/aws-lambda-runtime-interface-emulator",
       created: 0,
       title: "aws: aws-lambda-runtime-interface-emulator",
       body: ""
     },
     {
       id: "MDEwOlJlcG9zaXRvcnkzMjY5NjE5ODc=",
-      url: "https://github/google/aidl-language",
+      url: "https://github.com/google/aidl-language",
       created: 0,
       title: "google: aidl-language",
       body: "VSCode extension providing syntax highlighting for AIDL, the Android Interface Definition Language."
     },
     {
       id: "MDEwOlJlcG9zaXRvcnkzMjM2NTI4MjI=",
-      url: "https://github/google/fedjax",
+      url: "https://github.com/google/fedjax",
       created: 0,
       title: "google: fedjax",
       body: "FedJAX is a library for developing custom Federated Learning (FL) algorithms in JAX."
     },
     {
       id: "MDEwOlJlcG9zaXRvcnkzMjE4OTIzNTQ=",
-      url: "https://github/google/device-access-sample-web-app",
+      url: "https://github.com/google/device-access-sample-web-app",
       created: 0,
       title: "google: device-access-sample-web-app",
       body: ""
@@ -121,7 +121,7 @@ describe("GhUserProject", () => {
       entry.edges.flatMap((e) =>
         e.node.repositories.edges.map(({ node: { id, name, description } }) => ({
           id,
-          url: `https://github/${username}/${name}`,
+          url: `https://github.com/${username}/${name}`,
           created: 0,
           title: `${username}: ${name}`,
           body: description ?? ""

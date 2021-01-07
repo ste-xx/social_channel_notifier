@@ -77,7 +77,7 @@ export const ghUserProject: Feed<"ghUserProject"> = {
       entry.edges.flatMap((e) =>
         e.node.repositories.edges.map(({ node: { id, name, description } }) => ({
           id,
-          url: `https://github/${username}/${name}`,
+          url: `https://github,com/${username}/${name}`,
           created: new Date().getTime(),
           title: `${username}: ${name}`,
           body: description ?? ""
